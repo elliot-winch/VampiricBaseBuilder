@@ -1,0 +1,56 @@
+﻿TO DO List:
+
+Game:
+Saving and loading
+Loading initially from JSON files
+Art (player, dirt, walls etc)
+Audio
+
+Vampire:
+Implement player character
+Implement movement mode
+
+World:
+Implement beds with time of day
+Implement doors
+Implement tables/chairs/food
+Implement loose objects
+Implement random generation w/ biomes/micro-biomes
+
+Villagers:
+Improve 'blocked' aspect of tiles so that villagers block tiles for building
+
+Jobs:
+Different types of jobs (eating, sleeping, working)
+Imeplement work (wood cutting, mining, etc.)
+Cancelling jobs
+Moving to higher priority jobs
+Completing jobs in more logical order
+Delete installed 
+Flooring is job
+
+Pathfinding: 
+Fix being able to go through diagonal walls ?
+0wv0	0w00
+00w0 -> 0vw0
+000w	000w
+
+Bugs:
+Villagers trapped in walls that are built (to do with blocked)
+Strange order for building walls
+
+Clean Up:
+Camera movement less jarring
+Drag area should have UI to show boundries of dragging
+
+
+
+
+-----
+Blocked: 
+
+Why might a tile be blocked:					Blocks through traffic?:
+A villager occupies the tile					No							
+An installed item occupies the tile				Yes, except doors. 			
+A villager is completing a plan on that tile	Yes			
+				
