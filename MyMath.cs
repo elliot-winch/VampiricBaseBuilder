@@ -14,11 +14,15 @@ public static class MyMath  {
 
 
 	public static bool EqualsRoughly2D(Vector3 a, Vector3 b){
-		if (a.x <= b.x + Mathf.Epsilon && a.x >= b.x - Mathf.Epsilon
-		   && a.y <= b.y + Mathf.Epsilon && a.y >= b.y - Mathf.Epsilon) {
-			return true;
-		}
+		return a.x <= b.x + Mathf.Epsilon && a.x >= b.x - Mathf.Epsilon
+		&& a.y <= b.y + Mathf.Epsilon && a.y >= b.y - Mathf.Epsilon;
+		
+	}
 
-		return false;
+	public static bool InTile(Vector3 posA, Vector3 posB){
+		return ((posA.x <= posB.x + 1) && (posA.x >= posB.x) && (posA.y <= posB.y + 1) && (posA.y >= posB.y))
+			|| ((posA.x + 1 <= posB.x + 1) && (posA.x + 1 >= posB.x) && (posA.y  <= posB.y + 1) && (posA.y >= posB.y))
+			|| ((posA.x <= posB.x + 1) && (posA.x >= posB.x) && (posA.y + 1 <= posB.y + 1) && (posA.y + 1 >= posB.y))
+			|| ((posA.x + 1 <= posB.x + 1) && (posA.x + 1>= posB.x) && (posA.y + 1 <= posB.y + 1) && (posA.y + 1 >= posB.y));
 	}
 }

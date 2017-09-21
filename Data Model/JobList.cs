@@ -30,7 +30,7 @@ public static class JobList  {
 
 	//FIXME: what if multiple villagers in square?
 	static void MoveVillagersOutOfWay(Tile t){
-		if (t.OccupyingVillager != null && t.OccupyingVillager.HasPath == false) {
+		if (t.OccupyingVillager != null) {
 			t.OccupyingVillager.SetDest(t.NearestNeighbourTo(t.X, t.Y));
 		}
 	}

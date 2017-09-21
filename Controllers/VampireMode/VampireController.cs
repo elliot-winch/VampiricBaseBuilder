@@ -20,7 +20,7 @@ public class VampireController : MonoBehaviour {
 		}
 		_instance = this;
 			
-		SpawnPlayer (new Vector3(50f, 50f, 0f));
+		SpawnPlayer (new Vector3(10f, 10f, 0f));
 	}
 
 	public void SpawnPlayer(Vector3 pos){

@@ -63,12 +63,13 @@ public class Tile : INode{
 			return planned;
 		}
 		set {
-			if ((installed == null && value != null) || (installed != null && value == null)) {
+			if (planned != null) {
+				Debug.Log ("Plan already exists here");
 
+			} else if ((installed == null && value != null) || (installed != null && value == null)) {
 				InstalledObject obj = planned;
 				planned = value;
-
-				if (plannedChange != null && obj != planned) {
+				if (plannedChange != null && obj != planned){
 					plannedChange (this);
 				}
 			} 
@@ -80,13 +81,22 @@ public class Tile : INode{
 			return installed;
 		}
 		set {
-			InstalledObject obj = installed;
-			installed = value;
-			this.moveCost = value.MoveCost;
+			if ((installed == null && value != null) || (installed != null && value == null)) {
+				Debug.Log (installed + " : " + value);
+				InstalledObject obj = installed;
+				installed = value;
+				this.moveCost = value.MoveCost;
 
-			if (rawInstallChange != null && obj != installed) {
-				planned = null;
-				rawInstallChange (this);
+
+
+				if (rawInstallChange != null && obj != installed) {
+					planned = null;
+					rawInstallChange (this);
+				}
+			} else {
+				if (value != null) {
+					Debug.Log ("Object already installed here");
+				}
 			}
 		}
 	}

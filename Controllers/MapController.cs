@@ -89,7 +89,15 @@ public class MapController : MonoBehaviour {
 		int x = (int)pos.x;
 		int y = (int)pos.y;
 
-		return MapController.Instance.Map.GetTileAt (x, y);
+		return map.GetTileAt (x, y);
+	}
+
+	public Tile GetTileAtWorldPos(int x, int y){
+		return map.GetTileAt(x, y);
+	}
+
+	public Tile GetTileAtWorldPos(float x, float y){
+		return map.GetTileAt((int)x, (int)y);
 	}
 
 	void OnTileTypeChanged(Tile tile_data, GameObject tile_go){
@@ -134,19 +142,22 @@ public class MapController : MonoBehaviour {
 		obj_go_sr.color = new Color (obj_go_sr.color.r, obj_go_sr.color.g, obj_go_sr.color.b, obj_go_sr.color.a * 0.5f);
 
 		plannedObjects.Add (tile, obj_go);
+
+		//Add job
+		JobController.Instance.AddJob (Time.realtimeSinceStartup, new Job(tile, JobList.JobFunctions[obj.ID] /* t.Planned.WorkToBuild*/));
 	}
 
 	public void CreateInstalledObject(Tile tile){
+		if (tile == null) {
+			Debug.LogError ("Cannot init object on null tile");
+			return;
+		}
+
 		GameObject obj_toDestroy;
 
 		if (plannedObjects.TryGetValue(tile, out obj_toDestroy)) {
 			plannedObjects.Remove (tile);
 			Destroy (obj_toDestroy);
-		}
-
-		if (tile == null) {
-			Debug.LogError ("Cannot init object on null tile");
-			return;
 		}
 
 		if (tile.Installed == null) {

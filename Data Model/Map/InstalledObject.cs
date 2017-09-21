@@ -80,7 +80,6 @@ public class InstalledObject {
 			this.baseTile = t;
 
 			t.Planned = this;
-			JobController.Instance.AddJob (Time.realtimeSinceStartup, new Job(t, JobList.JobFunctions[t.Planned.ID] /* t.Planned.WorkToBuild*/));
 		}
 	}
 

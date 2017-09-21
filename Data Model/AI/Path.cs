@@ -20,6 +20,15 @@ public class Path  {
 		PathNode<Tile> start = nodes[startTile];
 		PathNode<Tile> goal = nodes[endTile];
 
+		if (endTile.MoveCost == Mathf.Infinity) {
+			Debug.Log ("Tried to set path with dest in impassable tile");
+			return;
+		}
+
+		if (startTile.MoveCost == Mathf.Infinity) {
+			start = nodes[startTile.NearestNeighbourTo(startTile.X, startTile.Y)];
+		}
+
 		// Make sure our start/end tiles are in the list of nodes!
 		if(nodes.ContainsKey(startTile) == false) {
 			Debug.LogError("Path_AStar: The starting tile isn't in the list of nodes!");

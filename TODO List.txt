@@ -7,8 +7,7 @@ Art (player, dirt, walls etc)
 Audio
 
 Vampire:
-Implement player character
-Implement movement mode
+Bug fix: Cannot fit down 1 wide corridors
 
 World:
 Implement beds with time of day
@@ -18,7 +17,7 @@ Implement loose objects
 Implement random generation w/ biomes/micro-biomes
 
 Villagers:
-Improve 'blocked' aspect of tiles so that villagers block tiles for building
+Bug: Villagers won't work where a villager is currently standing
 
 Jobs:
 Different types of jobs (eating, sleeping, working)
@@ -36,15 +35,10 @@ Fix being able to go through diagonal walls ?
 000w	000w
 
 Bugs:
-Villagers trapped in walls that are built (to do with blocked)
-Strange order for building walls
 
 Clean Up:
 Camera movement less jarring
 Drag area should have UI to show boundries of dragging
-
-
-
 
 -----
 Blocked: 

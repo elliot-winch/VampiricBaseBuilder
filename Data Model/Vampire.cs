@@ -12,8 +12,9 @@ public class Vampire {
 	public KeyCode[] getKeyCodes(){
 		return new KeyCode[]{ up, left, down, right };
 	}
-
+		
 	Vector3 position;
+	Tile currentTile;
 	Action<Vampire> onMove;
 
 	public Vector3 Position {
@@ -28,15 +29,15 @@ public class Vampire {
 		}
 	}
 
-	float moveSpeed;
+	float baseMoveSpeed;
 
-	public float MoveSpeed{ 
+	public float BaseMoveSpeed{ 
 		get { 
-			return moveSpeed;
+			return baseMoveSpeed;
 		}
 		set{ 
 			if (value >= 0) {
-				moveSpeed = value;
+				baseMoveSpeed = value;
 			} else {
 				Debug.Log ("Setting MoveSpeed to less than zero is not allowed");
 			}
@@ -44,8 +45,9 @@ public class Vampire {
 	}
 
 	public Vampire(float moveSpeed, Vector3 position){
-		this.MoveSpeed = moveSpeed;
+		this.BaseMoveSpeed = moveSpeed;
 		this.Position = position;
+		this.currentTile = MapController.Instance.GetTileAtWorldPos (this.Position);
 	}
 
 	public void AssignMoveCallback(Action<Vampire> callback){
@@ -59,23 +61,47 @@ public class Vampire {
 	//For garbage collection purposes, this Vecotr2 is declared here and reused each frame
 
 	Vector3 toMove = new Vector3();
+	Vector3 tryMove = new Vector3();
+	bool pressed = false;
+	Tile[] tryTile = new Tile[4];
 
 	void UpdateMovement(float time){
+		pressed = false;
+
 		toMove = Vector3.zero;
 
 		if (Input.GetKey (up)) {
-			toMove.y += time * MoveSpeed;
+			toMove.y += time * BaseMoveSpeed / currentTile.MoveCost;
+			pressed = true;
 		}
 		if (Input.GetKey (down)) {
-			toMove.y -= time * MoveSpeed;
+			toMove.y -= time * BaseMoveSpeed / currentTile.MoveCost;
+			pressed = true;
 		}
 		if (Input.GetKey (left)) {
-			toMove.x -= time * MoveSpeed;
+			toMove.x -= time * BaseMoveSpeed / currentTile.MoveCost;
+			pressed = true;
 		}
 		if (Input.GetKey (right)) {
-			toMove.x += time * MoveSpeed;
+			toMove.x += time * BaseMoveSpeed / currentTile.MoveCost;
+			pressed = true;
 		}
 
-		Position = toMove;
+		if(pressed){
+			tryMove = position + toMove;
+			tryTile[0] = MapController.Instance.GetTileAtWorldPos (tryMove);
+			tryTile[1] = MapController.Instance.GetTileAtWorldPos (tryMove.x, tryMove.y + 1);
+			tryTile[2] = MapController.Instance.GetTileAtWorldPos (tryMove.x + 1, tryMove.y);
+			tryTile[3] = MapController.Instance.GetTileAtWorldPos (tryMove.x + 1, tryMove.y + 1);
+
+
+			foreach (Tile t in tryTile) {
+				if (t == null || (t != null && t.MoveCost == Mathf.Infinity)) {
+					return;
+				}
+			}
+
+			Position = toMove;
+		}
 	}
 }

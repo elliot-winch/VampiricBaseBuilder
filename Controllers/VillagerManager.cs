@@ -51,6 +51,8 @@ public class VillagerManager : MonoBehaviour {
 	}
 
 	void ChangePosition(Villager v, GameObject vil_go){
-		vil_go.transform.position = v.Position;
+		if (v.HasPath) {
+			vil_go.transform.position = v.Position;
+		}
 	}
 }

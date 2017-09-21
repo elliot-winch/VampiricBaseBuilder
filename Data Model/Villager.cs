@@ -25,14 +25,15 @@ public class Villager {
 	Tile adjacentJobTile;
 
 	public float X {
-		get { 
+		get {
 			return Mathf.Lerp (currentTile.X, nextTile.X, movePercentage);
-
 		}
 	}
 
 	public float Y {
-		get { return Mathf.Lerp (currentTile.Y, nextTile.Y, movePercentage); }
+		get { 
+			return Mathf.Lerp (currentTile.Y, nextTile.Y, movePercentage); 
+		}
 	}
 
 	public Vector3 Position{
@@ -44,6 +45,10 @@ public class Villager {
 			return currentTile;
 		} 
 		set {
+			if (value == null) {
+				Debug.Log ("Trying to set villager currentTile to null");
+			}
+
 			if (currentTile != null) {
 				currentTile.OccupyingVillager = null;
 			}
@@ -90,17 +95,13 @@ public class Villager {
 				if (nextTile == null) {
 					destTile = null;
 					currentPath = null;
-					return;
 				}
-
 				//If path has become blocked
-				if (nextTile.MoveCost >= RecalcPathCost) {
+				else if (nextTile.MoveCost >= RecalcPathCost || nextTile.MoveCost == Mathf.Infinity) {
 					SetDest (destTile);
-					return;
+				} else {
+					distCurrNext = MyMath.Distance (currentTile.X, nextTile.X, currentTile.Y, nextTile.Y);
 				}
-
-				distCurrNext = MyMath.Distance (currentTile.X, this.nextTile.X, currentTile.Y, this.nextTile.Y);
-
 			}
 
 			movePercentage += (speed * time) / distCurrNext;
@@ -115,9 +116,13 @@ public class Villager {
 			//It's probably nearest neighbour
 		}
 
+		if (dest.MoveCost == Mathf.Infinity) {
+			SetDest (dest.NearestNeighbourTo (dest.X, dest.Y));
+		}
+
 		currentPath = new Path (MapController.Instance.Map, CurrentTile, dest);
 
-		if (currentPath != null) {
+		if (currentPath.IsNextTile()) {
 			nextTile = currentPath.GetNextTile ();
 			destTile = dest;
 		} else {
@@ -161,7 +166,7 @@ public class Villager {
 			} else {
 				
 				//If not in range and not travelling, start to travel
-				if (this.currentPath == null) {
+				if (currentPath == null) {
 					Tile dest = this.CurrentJob.Tile.NearestNeighbourTo (this.CurrentTile.X , this.CurrentTile.Y);
 					SetDest (dest);
 					this.adjacentJobTile = dest;
