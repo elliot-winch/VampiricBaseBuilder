@@ -85,9 +85,7 @@ public class Tile : INode{
 				Debug.Log (installed + " : " + value);
 				InstalledObject obj = installed;
 				installed = value;
-				this.moveCost = value.MoveCost;
-
-
+				this.moveCost = value.GetMoveCost();
 
 				if (rawInstallChange != null && obj != installed) {
 					planned = null;
@@ -110,6 +108,8 @@ public class Tile : INode{
 		}
 	}
 
+	public bool CanMoveThrough { get; protected set; }
+
 	public Villager OccupyingVillager {
 		get {
 			return occupyingVillager;
@@ -124,11 +124,11 @@ public class Tile : INode{
 		this.x = x;
 		this.y = y;
 		this.installed = null;
-
 		this.originalType = startingType;
 		this.Type = originalType;
 
 		this.moveCost = moveCost;
+		this.CanMoveThrough = true; //FIXME tileType.canMoveThrough
 	}
 
 	public void RegisterTileTypeChangeCallback(Action<Tile> callback){
@@ -171,7 +171,7 @@ public class Tile : INode{
 		float posMin;
 
 		foreach (Tile tile in neighbours) {
-			if (tile != null && tile.MoveCost != Mathf.Infinity) {
+			if (tile != null && tile.CanMoveThrough) {
 				posMin = MyMath.SqrDistance (x, tile.X, y, tile.Y);
 				if (posMin < min) {
 					currentMin = tile;
@@ -188,8 +188,10 @@ public class Tile : INode{
 		planned = null;
 
 		if (installed != null) {
-			this.moveCost = installed.MoveCost;
+			this.moveCost = installed.GetMoveCost();
+			this.CanMoveThrough = installed.CanMoveThrough;
 		} else {
+			this.moveCost = 1f;
 			//this.moveCost = originalType.moveCost;//FIXME
 		}
 	}

@@ -48,12 +48,20 @@ public class Villager {
 			if (value == null) {
 				Debug.Log ("Trying to set villager currentTile to null");
 			}
-
+			//Prev tile
 			if (currentTile != null) {
 				currentTile.OccupyingVillager = null;
+				if (currentTile.Installed != null) {
+					currentTile.Installed.PrevInteract (currentTile);
+				}
 			}
+			//New current tile
 			currentTile = value;
 			currentTile.OccupyingVillager = this;
+
+			if (currentTile.Installed != null) {
+				currentTile.Installed.Interact (currentTile);
+			}
 		}
 	}
 
@@ -72,14 +80,12 @@ public class Villager {
 	}
 
 	public void Update(float time){
-		//if (!(destTile != null && destTile.OccupyingVillager != null)) {
 		UpdateJob (time);
 
 		UpdateMovement (time);
-		//}
 	}
 
-	//Movement
+	//Movement - Villagers can open and close doors, but monsters should not be able to
 	void UpdateMovement(float time){
 
 		if (currentPath != null) {
@@ -87,7 +93,7 @@ public class Villager {
 			//Reached nextTile
 			if (movePercentage >= 1) {
 				movePercentage = 0;
-				this.CurrentTile = this.nextTile;
+				CurrentTile = nextTile;
 
 				nextTile = currentPath.GetNextTile ();
 
@@ -96,15 +102,16 @@ public class Villager {
 					destTile = null;
 					currentPath = null;
 				}
-				//If path has become blocked
-				else if (nextTile.MoveCost >= RecalcPathCost || nextTile.MoveCost == Mathf.Infinity) {
+					
+				//If path has become impassable
+				else if (nextTile.CanMoveThrough == false) {
 					SetDest (destTile);
 				} else {
 					distCurrNext = MyMath.Distance (currentTile.X, nextTile.X, currentTile.Y, nextTile.Y);
 				}
 			}
 
-			movePercentage += (speed * time) / distCurrNext;
+			movePercentage += (speed * time) / (distCurrNext * CurrentTile.MoveCost);
 
 			onPositionChanged (this);
 		}
@@ -116,11 +123,11 @@ public class Villager {
 			//It's probably nearest neighbour
 		}
 
-		if (dest.MoveCost == Mathf.Infinity) {
+		if (dest.CanMoveThrough == false) {
 			SetDest (dest.NearestNeighbourTo (dest.X, dest.Y));
 		}
 
-		currentPath = new Path (MapController.Instance.Map, CurrentTile, dest);
+		currentPath = new Path (MapController.Instance.Map, CurrentTile, dest, true);
 
 		if (currentPath.IsNextTile()) {
 			nextTile = currentPath.GetNextTile ();

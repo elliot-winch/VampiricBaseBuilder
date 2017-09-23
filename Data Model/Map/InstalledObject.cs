@@ -14,10 +14,13 @@ public class InstalledObject {
 	int width;
 	int height;
 	float moveCost;
+	bool canMoveThrough;
+	Action<Tile> prevInteraction; //How all entities interact with this installed object when they've just stepped off it
+	Action<Tile> onInteraction;  //How all entities interact with this installed object 
 
 	Tile baseTile;
 	Func<Tile, bool> placementValidation;
-
+	JobList.StandardJobs onJobComplete;
 
 	public string Name {
 		get {
@@ -55,13 +58,33 @@ public class InstalledObject {
 		}
 	}
 
-	public float MoveCost {
+	public virtual float GetMoveCost(){ 
+		return moveCost;
+	}
+
+	public void SetMoveCost(float val){
+		this.moveCost = val;
+	}
+
+	public bool CanMoveThrough {
 		get {
-			return moveCost;
+			return canMoveThrough;
+		}
+		set {
+			canMoveThrough = value;
 		}
 	}
 
-	public InstalledObject (int ID, string name, Sprite sprite, Func<Tile, bool> validation, int sortingOrder = 50, string sortingLayer = "InstalledObject", float moveCost=Mathf.Infinity, int width=1, int height=1){
+	public JobList.StandardJobs OnJobComplete {
+		get {
+			return onJobComplete;
+		}
+	}
+
+	public InstalledObject (int ID, string name, Sprite sprite, Func<Tile, bool> validation, 
+		JobList.StandardJobs onJobComplete, bool canMoveThrough = false, float moveCost=Mathf.Infinity, int sortingOrder = 50, 
+		string sortingLayer = "InstalledObject", int width=1, int height=1){
+
 		this.id = ID;
 		this.name = name;
 
@@ -70,6 +93,8 @@ public class InstalledObject {
 		this.sortingOrder = sortingOrder;
 
 		this.placementValidation = validation;
+		this.onJobComplete = onJobComplete;
+		this.canMoveThrough = canMoveThrough;
 		this.moveCost = moveCost;
 		this.width = width;
 		this.height = height;
@@ -87,12 +112,33 @@ public class InstalledObject {
 		if (placementValidation(t)) {
 			this.baseTile = t;
 
-			t.MoveCost = this.moveCost;
 			t.Installed = this;
 		}
 	}
 
 	public bool StandardValidation(Tile t){
 		return true;
+	}
+
+	//When a villager just finished moving through this tile, what happens?
+	public void RegisterPrevInteractionCallback(Action<Tile> callback){
+		prevInteraction += callback;
+	}
+
+	//When a villager moves through this tile, what happens?
+	public void RegisterInteractionCallback(Action<Tile> callback){
+		onInteraction += callback;
+	}
+
+	public void PrevInteract(Tile t){
+		if (prevInteraction != null) {
+			prevInteraction (t);
+		}
+	}
+
+	public void Interact(Tile t){
+		if (onInteraction != null) {
+			onInteraction (t);
+		}
 	}
 }

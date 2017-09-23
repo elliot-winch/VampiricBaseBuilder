@@ -4,11 +4,9 @@ using UnityEngine;
 
 public class Path  {
 
-	static float moveLim = 1000f;
-
 	Stack<Tile> validPath;
 
-	public Path(Map map, Tile startTile, Tile endTile){
+	public Path(Map map, Tile startTile, Tile endTile, bool canInteract){
 		// Check to see if we have a valid tile graph
 		if (map.Graph == null) {
 			Debug.LogError ("No graph instantiated");
@@ -20,12 +18,12 @@ public class Path  {
 		PathNode<Tile> start = nodes[startTile];
 		PathNode<Tile> goal = nodes[endTile];
 
-		if (endTile.MoveCost == Mathf.Infinity) {
+		if (endTile.CanMoveThrough == false) {
 			Debug.Log ("Tried to set path with dest in impassable tile");
 			return;
 		}
 
-		if (startTile.MoveCost == Mathf.Infinity) {
+		if (startTile.CanMoveThrough == false) {
 			start = nodes[startTile.NearestNeighbourTo(startTile.X, startTile.Y)];
 		}
 
@@ -87,11 +85,10 @@ public class Path  {
 				if( ClosedSet.Contains(neighbor) == true )
 					continue; // ignore this already completed neighbor
 
-				if (neighbor.data.MoveCost >= moveLim) {
-					//Ignore impassible tile
-					continue; 
+				if (neighbor.data.CanMoveThrough == false) {
+					continue;
 				}
-
+					
 				float tentative_g_score = g_score[current] + current.data.MoveCost;
 
 				if(OpenSet.Contains(neighbor) && tentative_g_score >= g_score[neighbor])

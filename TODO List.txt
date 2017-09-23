@@ -11,10 +11,10 @@ Bug fix: Cannot fit down 1 wide corridors
 
 World:
 Implement beds with time of day
-Implement doors
 Implement tables/chairs/food
 Implement loose objects
 Implement random generation w/ biomes/micro-biomes
+Doors: implement locking of doors
 
 Villagers:
 Bug: Villagers won't work where a villager is currently standing

@@ -4,6 +4,11 @@ using UnityEngine;
 
 public static class JobList  {
 
+	public enum StandardJobs
+	{
+		StandardInstall
+	}
+
 	static Action<Tile>[] jobList;
 
 	public static Action<Tile>[] JobFunctions {
@@ -15,9 +20,9 @@ public static class JobList  {
 	public static void Init(){
 		jobList = new Action<Tile>[InstalledObjectHolder.MaxObjID];
 
-		jobList [0] += TellTileToComplete;
-		jobList [0] += MakeNewGraphicalObject;
-		jobList [0] += MoveVillagersOutOfWay;
+		jobList [(int) StandardJobs.StandardInstall] += TellTileToComplete;
+		jobList [(int) StandardJobs.StandardInstall] += MakeNewGraphicalObject;
+		jobList [(int) StandardJobs.StandardInstall] += MoveVillagersOutOfWay;
 	}
 
 	static void TellTileToComplete(Tile t){

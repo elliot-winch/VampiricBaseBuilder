@@ -96,7 +96,7 @@ public class Vampire {
 
 
 			foreach (Tile t in tryTile) {
-				if (t == null || (t != null && t.MoveCost == Mathf.Infinity)) {
+				if (t.CanMoveThrough == false) {
 					return;
 				}
 			}

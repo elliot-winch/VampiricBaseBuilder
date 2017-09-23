@@ -144,7 +144,7 @@ public class MapController : MonoBehaviour {
 		plannedObjects.Add (tile, obj_go);
 
 		//Add job
-		JobController.Instance.AddJob (Time.realtimeSinceStartup, new Job(tile, JobList.JobFunctions[obj.ID] /* t.Planned.WorkToBuild*/));
+		JobController.Instance.AddJob (Time.realtimeSinceStartup, new Job(tile, JobList.JobFunctions[(int)obj.OnJobComplete] /* t.Planned.WorkToBuild*/));
 	}
 
 	public void CreateInstalledObject(Tile tile){
