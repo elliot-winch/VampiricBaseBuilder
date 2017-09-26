@@ -7,7 +7,7 @@ public class Villager {
 
 	static float RecalcPathCost = 100f;
 
-	public string name = "Bob";
+	VillagerInfo v_info;
 
 	//Movement
 	float speed = 2f;
@@ -73,10 +73,27 @@ public class Villager {
 
 	public Villager(Tile currentTile){
 		this.CurrentTile = currentTile;
+		this.v_info = new VillagerInfo ("Something", 0f);
+	}
+
+	public Villager(Tile currentTile, VillagerInfo info){
+		this.CurrentTile = currentTile;
+		this.v_info = info;
+	}
+
+	public Villager(Tile currentTile, string name, float age){
+		this.CurrentTile = currentTile;
+		this.v_info = new VillagerInfo (name, age);
+	}
+
+	public VillagerInfo Info {
+		get {
+			return v_info;
+		}
 	}
 
 	public void Start(){
-		RecalcPathCost = 100f;
+		//Currently empty
 	}
 
 	public void Update(float time){
@@ -87,7 +104,6 @@ public class Villager {
 
 	//Movement - Villagers can open and close doors, but monsters should not be able to
 	void UpdateMovement(float time){
-
 		if (currentPath != null) {
 
 			//Reached nextTile
@@ -95,7 +111,11 @@ public class Villager {
 				movePercentage = 0;
 				CurrentTile = nextTile;
 
-				nextTile = currentPath.GetNextTile ();
+				try {
+					nextTile = currentPath.GetNextTile ();
+				} catch (NullReferenceException e){
+					Debug.Log (e.Message);
+				}
 
 				//Reached end of path case
 				if (nextTile == null) {

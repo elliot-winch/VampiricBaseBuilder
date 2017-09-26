@@ -14,39 +14,23 @@ public class CameraManagerBuildMode : MonoBehaviour {
 	public float cameraMinZoom = 3f;
 	public float cameraMaxZoom = 25f;
 
-	Vector3 mousePos;
-	Vector3 lastMousePos;
+	MouseManagerBuildMode mm;
 
 	void Start(){
-		lastMousePos = Input.mousePosition;
+		mm = MouseManagerBuildMode.Instance;
 	}
 
 	void Update(){
-		mousePos = Input.mousePosition;
-
 		UpdateCamera ();
-
-		lastMousePos = mousePos;
 	}
 
 
 	void UpdateCamera(){
 		Zoom ();
 
-		if (!DragCamera()) {
+		if (!mm.DragCamera(cameraMoveDrag)) {
 			MoveCameraWithButtons ();
 		} 
-	}
-
-	bool DragCamera(){
-		if (Input.GetMouseButton (1) || Input.GetMouseButton (2)) {
-
-			Camera.main.transform.Translate ((lastMousePos - mousePos) * cameraMoveDrag);
-
-			return true;
-		} 
-
-		return false;
 	}
 
 	void MoveCameraWithButtons(){

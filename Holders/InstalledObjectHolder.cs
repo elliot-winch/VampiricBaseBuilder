@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 
 public static class InstalledObjectHolder {
@@ -25,6 +25,9 @@ public static class InstalledObjectHolder {
 		objs[2] = new InstalledObject (2, "Door", doorSprite, FurnitureValidation, JobList.StandardJobs.StandardInstall, true, 1.5f);
 		objs[2].RegisterPrevInteractionCallback ( (tile) => { SwitchSprite(tile, doorSprite); });
 		objs[2].RegisterInteractionCallback ( (tile) => { SwitchSprite(tile, doorOpenSprite); });
+        
+        objs[2].AddPossibleJob(JobList.StandardJobs.Lock);
+		objs [2].AddPossibleJob (JobList.StandardJobs.Unlock);
 	}
 
 	public static InstalledObject GetValue(int val){ 

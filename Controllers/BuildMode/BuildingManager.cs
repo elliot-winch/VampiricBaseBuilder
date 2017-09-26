@@ -40,8 +40,10 @@ public class BuildingManager : MonoBehaviour {
 		}
 		_instance = this;
 
+		//Move this?
 		InstalledObjectHolder.Init ();
 		TileTypeHolder.Init ();
+		ExtraGraphicalElementHolder.Init ();
 
 		SetMode ((int)BuildModes.None);
 	}

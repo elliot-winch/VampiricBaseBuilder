@@ -2,7 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * 
+ * This class represents an actual, realised job that exists on a Tile and in the job queue.
+ * 
+ * 
+ */
+
 public class Job  {
+
 
 	Tile tile;
 
@@ -17,6 +25,8 @@ public class Job  {
 		}
 	}
 
+	public bool Active { get; set; }
+
 	public Action<Tile> OnCompleteJob {
 		get {
 			return onCompleteJob;
@@ -30,6 +40,7 @@ public class Job  {
 	}
 
 	public Job(Tile tile, Action<Tile> job, float jobTime = 2f){
+		this.Active = true;
 		this.tile = tile;
 		this.onCompleteJob = job;
 		this.jobTime = jobTime;

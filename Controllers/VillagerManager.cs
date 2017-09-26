@@ -13,8 +13,8 @@ public class VillagerManager : MonoBehaviour {
 
 		//FIXME: testing only
 
-		Villager v = new Villager (MapController.Instance.Map.GetTileAt (0, 0));
-		Villager v1 = new Villager (MapController.Instance.Map.GetTileAt (1, 1));
+		Villager v = new Villager (MapController.Instance.Map.GetTileAt (0, 0), "Steve", 10f);
+		Villager v1 = new Villager (MapController.Instance.Map.GetTileAt (1, 1), "Rachel", 20f);
 
 		villagers.Add (v);
 		villagers.Add (v1);
@@ -35,7 +35,7 @@ public class VillagerManager : MonoBehaviour {
 	GameObject CreateVillagerObject(Villager v){
 
 		GameObject vil_go = new GameObject ();
-		vil_go.name = v.name;
+		vil_go.name = v.Info.Name;
 		vil_go.transform.position = v.CurrentTile.GetPosition ();
 
 		vil_go.transform.SetParent (this.transform, true);

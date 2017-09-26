@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,6 +21,9 @@ public class InstalledObject {
 	Tile baseTile;
 	Func<Tile, bool> placementValidation;
 	JobList.StandardJobs onJobComplete;
+    
+    //These are things villagers/the vampire can do to installed objects
+	List<PossibleJob> possibleJobs;
 
 	public string Name {
 		get {
@@ -80,6 +83,27 @@ public class InstalledObject {
 			return onJobComplete;
 		}
 	}
+    
+	public List<PossibleJob> PossibleJobs {
+		get {
+			return possibleJobs;
+		}
+	}
+    
+    public void AddPossibleJob(JobList.StandardJobs job){
+		possibleJobs.Add(new PossibleJob(job, true));
+    }
+
+	public void SetPossibleJobActive(JobList.StandardJobs job, bool b){
+		//contains
+	
+		for(int i = 0; i < possibleJobs.Count; i++){
+			if(possibleJobs[i].possibleJob.Equals(job)){
+				possibleJobs[i].active = b;
+				return;
+			}
+		}
+	}
 
 	public InstalledObject (int ID, string name, Sprite sprite, Func<Tile, bool> validation, 
 		JobList.StandardJobs onJobComplete, bool canMoveThrough = false, float moveCost=Mathf.Infinity, int sortingOrder = 50, 
@@ -98,6 +122,8 @@ public class InstalledObject {
 		this.moveCost = moveCost;
 		this.width = width;
 		this.height = height;
+        
+		possibleJobs = new List<PossibleJob>();
 	}
 
 	public void PlaceObjectPlan(Tile t){
@@ -140,5 +166,16 @@ public class InstalledObject {
 		if (onInteraction != null) {
 			onInteraction (t);
 		}
+	}
+}
+
+public class PossibleJob
+{
+	public JobList.StandardJobs possibleJob;
+	public bool active;
+
+	public PossibleJob(JobList.StandardJobs j, bool active){
+		this.possibleJob = j;
+		this.active = active;
 	}
 }

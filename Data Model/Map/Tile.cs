@@ -108,7 +108,7 @@ public class Tile : INode{
 		}
 	}
 
-	public bool CanMoveThrough { get; protected set; }
+	public bool CanMoveThrough { get; set; }
 
 	public Villager OccupyingVillager {
 		get {
@@ -162,7 +162,7 @@ public class Tile : INode{
 		return neighbours;
 	}
 
-	//For calculating best place to walk for job. Might return null.
+	//For calculating best place to walk for job. Might return null
 	public Tile NearestNeighbourTo(int x, int y){
 		Tile[] neighbours = GetNeighbours ();
 
@@ -170,12 +170,14 @@ public class Tile : INode{
 		float min = Mathf.Infinity;
 		float posMin;
 
-		foreach (Tile tile in neighbours) {
-			if (tile != null && tile.CanMoveThrough) {
-				posMin = MyMath.SqrDistance (x, tile.X, y, tile.Y);
-				if (posMin < min) {
-					currentMin = tile;
-					min = posMin;
+		while (currentMin == null) {
+			foreach (Tile tile in neighbours) {
+				if (tile != null && tile.CanMoveThrough) {
+					posMin = MyMath.SqrDistance (x, tile.X, y, tile.Y);
+					if (posMin < min) {
+						currentMin = tile;
+						min = posMin;
+					}
 				}
 			}
 		}

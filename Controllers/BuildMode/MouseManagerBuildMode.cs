@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,24 +6,46 @@ using UnityEngine.EventSystems;
 
 public class MouseManagerBuildMode : MonoBehaviour {
 
+	static MouseManagerBuildMode _instance;
+
+	public static MouseManagerBuildMode Instance {
+		get {
+			return _instance;
+		}
+	}
+
 	public GameObject cursorPrefab;
 
 	GameObject cursor;
 
 	BuildingManager bm;
 
+	Vector3 startMousePos;
 	Vector3 mousePos;
 	Vector3 dragStartPos;
 
 	void Start(){
+		if (_instance != null) {
+			Debug.LogError ("Should not be more than one MouseManagerBuildMode");
+		}
+
+		_instance = this;
+
 		bm = BuildingManager.Instance;
 		cursor = Instantiate (cursorPrefab, Vector3.zero, Quaternion.identity);
+
+		startMousePos = Input.mousePosition;
 	}
 
 	void Update(){
 		mousePos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
 
+		if (Input.GetMouseButtonDown (1)) {
+			startMousePos = mousePos;
+		}
+
 		UpdateCursor ();
+		NonBuildClicks ();
 
 		if (!EventSystem.current.IsPointerOverGameObject()) {
 			
@@ -33,7 +55,7 @@ public class MouseManagerBuildMode : MonoBehaviour {
 				} else {
 					Place ();
 				}
-			}
+			} 
 		}
 	}
 
@@ -48,6 +70,35 @@ public class MouseManagerBuildMode : MonoBehaviour {
 		} else {
 			cursor.SetActive (false);
 		}
+	}
+
+	void NonBuildClicks(){
+		//Right click
+		if (Input.GetMouseButtonDown (1)) {
+			Tile t = MapController.Instance.GetTileAtWorldPos(new Vector3((int)mousePos.x, (int)mousePos.y));
+            
+			if (t.OccupyingVillager != null) {
+				UIControllerBuildMode.Instance.OpenVillagerPanel (t.OccupyingVillager.Info);
+			} else if(t.Installed != null){
+                //display jobs
+				UIController.Instance.DisplayJobPanel(t, t.Installed.PossibleJobs);
+				JobController.Instance.AddJob (Time.realtimeSinceStartup, new Job(t, JobList.JobFunctions[(int)t.Installed.PossibleJobs[0].possibleJob]));
+            } else {
+				UIControllerBuildMode.Instance.CloseVillagerPanel (); 
+		    }
+	   }
+    }
+    
+
+	public bool DragCamera(float cameraMoveDrag){
+		if (Input.GetMouseButton (1) || Input.GetMouseButton (2)) {
+
+			Camera.main.transform.Translate ((startMousePos - mousePos) * cameraMoveDrag);
+
+			return true;
+		} 
+
+		return false;
 	}
 
 	void Place(){

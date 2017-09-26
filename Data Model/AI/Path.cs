@@ -15,17 +15,21 @@ public class Path  {
 		// A dictionary of all valid, walkable nodes.
 		Dictionary<Tile, PathNode<Tile>> nodes = map.Graph.Current;
 
+		if(endTile.CanMoveThrough == false) {
+			Debug.Log ("Tried to set path with dest in impassable tile");
+			endTile  = endTile.NearestNeighbourTo(endTile.X, endTile.Y);
+
+			if (endTile == null) {
+				throw new NullReferenceException("No path to location");
+			}
+		}
+
+		while (startTile.CanMoveThrough == false) {
+			startTile = startTile.NearestNeighbourTo(startTile.X, startTile.Y);
+		}
+
 		PathNode<Tile> start = nodes[startTile];
 		PathNode<Tile> goal = nodes[endTile];
-
-		if (endTile.CanMoveThrough == false) {
-			Debug.Log ("Tried to set path with dest in impassable tile");
-			return;
-		}
-
-		if (startTile.CanMoveThrough == false) {
-			start = nodes[startTile.NearestNeighbourTo(startTile.X, startTile.Y)];
-		}
 
 		// Make sure our start/end tiles are in the list of nodes!
 		if(nodes.ContainsKey(startTile) == false) {

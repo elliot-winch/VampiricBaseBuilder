@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,6 +10,7 @@ public class MapController : MonoBehaviour {
 
 	Dictionary<Tile, GameObject> plannedObjects;
 	Dictionary<Tile, GameObject> installedObjects;
+	Dictionary<Tile, GameObject> extraGraphicalElements;
 
 	public Sprite floorSprite;
 
@@ -36,6 +37,12 @@ public class MapController : MonoBehaviour {
 			return installedObjects;
 		}
 	}
+
+	public Dictionary<Tile, GameObject> ExtraGraphicalElements {
+		get {
+			return extraGraphicalElements;
+		}
+	}
 		
 	void Start () {
 		if (_instance != null) {
@@ -45,6 +52,7 @@ public class MapController : MonoBehaviour {
 
 		plannedObjects = new Dictionary<Tile, GameObject> ();
 		installedObjects = new Dictionary<Tile, GameObject> ();
+        extraGraphicalElements = new Dictionary<Tile, GameObject> ();
 
 		Init ();
 
@@ -53,7 +61,7 @@ public class MapController : MonoBehaviour {
 
 	void Init(){
 		map = new Map ();
-
+        
 		for (int i = 0; i < map.Width; i++) {
 			for (int j = 0; j < map.Height; j++) {
 				Tile tile_data = map.GetTileAt (i, j);
@@ -144,7 +152,7 @@ public class MapController : MonoBehaviour {
 		plannedObjects.Add (tile, obj_go);
 
 		//Add job
-		JobController.Instance.AddJob (Time.realtimeSinceStartup, new Job(tile, JobList.JobFunctions[(int)obj.OnJobComplete] /* t.Planned.WorkToBuild*/));
+		JobController.Instance.AddJob (Time.realtimeSinceStartup, new Job(tile, JobList.JobFunctions[(int)tile.Planned.OnJobComplete]));
 	}
 
 	public void CreateInstalledObject(Tile tile){
@@ -184,5 +192,30 @@ public class MapController : MonoBehaviour {
 		obj_go_sr.sortingOrder = obj.SortingOrder;
 
 		installedObjects.Add (tile, obj_go);
+	}
+
+	public void AddExtraGraphicalElement(Tile t, ExtraGraphicalElement e){
+
+		GameObject e_go = new GameObject ();
+		e_go.name = e.Name;
+		e_go.transform.position = t.GetPosition ();
+		SpriteRenderer e_go_sr = e_go.AddComponent<SpriteRenderer> ();
+		e_go_sr.sprite = e.Sprite;
+		e_go_sr.sortingLayerName = "UI";
+
+		extraGraphicalElements.Add (t, e_go);
+	}
+
+	public bool RemoveExtraGraphicalElement(Tile t){
+
+		GameObject e_go;
+
+		if (plannedObjects.TryGetValue(t, out e_go)) {
+			plannedObjects.Remove (t);
+			Destroy (e_go);
+			return true;
+		}
+
+		return false;
 	}
 }
