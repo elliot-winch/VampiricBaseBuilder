@@ -96,8 +96,6 @@ public class BuildingManager : MonoBehaviour {
 			Debug.LogError ("Button needs setting!");
 			break;
 		}
-
-		Debug.Log (mode);
 	}
 
 	public void ChangeObj(int objID){

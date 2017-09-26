@@ -9,7 +9,7 @@ public static class TileTypeHolder/* : IHolder*/ {
 	public static void Init(){
 		sprites = new Sprite[(int)Tile.TileType.Last]; 
 
-		sprites[(int)Tile.TileType.Dirt] = Resources.Load <Sprite> ("Sprites/tempDirt");
-		sprites[(int)Tile.TileType.WoodFloor] = Resources.Load <Sprite> ("Sprites/floor");
+		sprites[(int)Tile.TileType.Dirt] = Resources.Load <Sprite> ("Sprites/Map/grass");
+		sprites[(int)Tile.TileType.WoodFloor] = Resources.Load <Sprite> ("Sprites/Map/woodfloor");
 	}
 }

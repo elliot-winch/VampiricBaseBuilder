@@ -17,7 +17,7 @@ public class ExtraGraphicalElementHolder : MonoBehaviour {
 		//Load from file
 		elements = new ExtraGraphicalElement[numElements];
 
-		elements [0] = new ExtraGraphicalElement ("Lock Symbol", Resources.Load <Sprite> ("Sprites/lock"));
+		elements [0] = new ExtraGraphicalElement ("Lock Symbol", Resources.Load <Sprite> ("Sprites/UI/lock"));
 	}
 
 	public ExtraGraphicalElement GetElement(int id){

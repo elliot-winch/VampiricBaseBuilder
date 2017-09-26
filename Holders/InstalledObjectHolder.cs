@@ -17,17 +17,19 @@ public static class InstalledObjectHolder {
 	
 		objs = new InstalledObject[maxObjID];
 
-		objs[0] = new InstalledObject(0, "Wall", Resources.Load <Sprite> ("Sprites/wall"), FurnitureValidation, JobList.StandardJobs.StandardInstall);
-		objs[1] = new InstalledObject (1, "Tree", Resources.Load<Sprite> ("Sprites/Forest Assets/Trees/Tree 10"), NatureValidation, JobList.StandardJobs.StandardInstall);
+		objs[0] = new InstalledObject(0, "Wall", Resources.Load <Sprite> ("Sprites/Map/woodwall"), FurnitureValidation, JobList.StandardJobs.StandardInstall);
+		objs[1] = new InstalledObject (1, "Tree", Resources.Load<Sprite> ("Sprites/Map/Forest Assets/Trees/Tree 10"), NatureValidation, JobList.StandardJobs.StandardInstall);
 
-		Sprite doorSprite = (Sprite)(Resources.LoadAll <Sprite> ("Sprites/doors")).GetValue(21);
-		Sprite doorOpenSprite = (Sprite)(Resources.LoadAll <Sprite> ("Sprites/doors")).GetValue(0);
+		Sprite[] doorSprites = (Sprite[])(Resources.LoadAll <Sprite> ("Sprites/Map/doors"));
+		Sprite doorSprite = doorSprites[21];
+		Sprite doorOpenSprite =  doorSprites[0];
 		objs[2] = new InstalledObject (2, "Door", doorSprite, FurnitureValidation, JobList.StandardJobs.StandardInstall, true, 1.5f);
 		objs[2].RegisterPrevInteractionCallback ( (tile) => { SwitchSprite(tile, doorSprite); });
 		objs[2].RegisterInteractionCallback ( (tile) => { SwitchSprite(tile, doorOpenSprite); });
         
-        objs[2].AddPossibleJob(JobList.StandardJobs.Lock);
-		objs [2].AddPossibleJob (JobList.StandardJobs.Unlock);
+		objs[2].AddPossibleJob((int)JobList.StandardJobs.Lock, true); 
+		objs[2].AddPossibleJob((int)JobList.StandardJobs.Unlock, false);
+		//Doors start unlocked (i.e. cannot unlocked locked door)
 	}
 
 	public static InstalledObject GetValue(int val){ 

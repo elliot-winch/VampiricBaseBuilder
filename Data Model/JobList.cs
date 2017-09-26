@@ -23,24 +23,34 @@ public static class JobList  {
 		jobList = new List<Action<Tile>> ();
 
 
-		jobList.Add(New);
-		jobList [(int) StandardJobs.StandardInstall] += TellTileToComplete;
-		jobList [(int) StandardJobs.StandardInstall] += MakeNewGraphicalObject;
-		jobList [(int) StandardJobs.StandardInstall] += MoveVillagersOutOfWay;
+		jobList.Add (New);
+		jobList [(int)StandardJobs.StandardInstall] += TellTileToComplete;
+		jobList [(int)StandardJobs.StandardInstall] += MakeNewGraphicalObject;
+		jobList [(int)StandardJobs.StandardInstall] += MoveVillagersOutOfWay;
 
-		jobList.Add(New);
-		jobList[(int) StandardJobs.Lock] += MoveVillagersOutOfWay;
-		jobList[(int) StandardJobs.Lock] += ToggleMoveThrough;
-		jobList[(int) StandardJobs.Lock] += AddGraphic;
-		jobList [(int)StandardJobs.Lock] += (tile) => { SetActivePossibleJob(tile, StandardJobs.Lock, false);} ;
-		jobList [(int)StandardJobs.Lock] += (tile) => { SetActivePossibleJob(tile, StandardJobs.Unlock, true);} ;
+		jobList.Add (New);
+		jobList [(int)StandardJobs.Lock] += MoveVillagersOutOfWay;
+		jobList [(int)StandardJobs.Lock] += ToggleMoveThrough;
+		jobList [(int)StandardJobs.Lock] += (tile) => {
+			AddGraphic (tile, ExtraGraphicalElementHolder.Elements [0]);
+		};
+		jobList [(int)StandardJobs.Lock] += (tile) => {
+			SetActivePossibleJob (tile, (int)StandardJobs.Lock, false);
+		};
+		jobList [(int)StandardJobs.Lock] += (tile) => {
+			SetActivePossibleJob (tile, (int)StandardJobs.Unlock, true);
+		};
 
-		jobList.Add(New);
-		jobList[(int) StandardJobs.Unlock] += ToggleMoveThrough;
-		jobList[(int) StandardJobs.Unlock] += RemoveGraphic;
-		jobList [(int)StandardJobs.Unlock] += (tile) => { SetActivePossibleJob(tile, StandardJobs.Unlock, false);} ;
-		jobList [(int)StandardJobs.Unlock] += (tile) => { SetActivePossibleJob(tile, StandardJobs.Lock, true);} ;
-	
+		jobList.Add (New);
+		jobList [(int)StandardJobs.Unlock] += ToggleMoveThrough;
+		jobList [(int)StandardJobs.Unlock] += RemoveGraphic;
+		jobList [(int)StandardJobs.Unlock] += (tile) => {
+			SetActivePossibleJob (tile, (int)StandardJobs.Unlock, false);
+		};
+		jobList [(int)StandardJobs.Unlock] += (tile) => {
+			SetActivePossibleJob (tile, (int)StandardJobs.Lock, true);
+		};
+
 	}
 
 	static void New(Tile t){
@@ -55,7 +65,6 @@ public static class JobList  {
 		MapController.Instance.CreateInstalledObject (t);
 	}
 
-	//FIXME: what if multiple villagers in square?
 	static void MoveVillagersOutOfWay(Tile t){
 		if (t.OccupyingVillager != null) {
 			Tile dest = t.NearestNeighbourTo (t.X, t.Y);
@@ -73,19 +82,24 @@ public static class JobList  {
 		t.CanMoveThrough = !t.CanMoveThrough;
 	}
 
-	static void AddGraphic(Tile t /* either int graphicID or ExtraGraphicalElement*/){
+	static void AddGraphic(Tile t, ExtraGraphicalElement e){
+		
+		Debug.Log ("Adding graphic @ " + t.X + " " + t.Y);
 		if (MapController.Instance.ExtraGraphicalElements.ContainsKey(t) == false) {
-			MapController.Instance.AddExtraGraphicalElement (t, ExtraGraphicalElementHolder.Elements [0]);
+			MapController.Instance.AddExtraGraphicalElement (t, e);
 		}
 	}
 
 	static void RemoveGraphic(Tile t){
-		if (MapController.Instance.ExtraGraphicalElements.ContainsKey (t) == true) {
+
+		Debug.Log ("Removing graphic @ " + t);
+
+		if (MapController.Instance.ExtraGraphicalElements.ContainsKey (t)) {
 			MapController.Instance.RemoveExtraGraphicalElement (t);
 		}
 	}
 
-	static void SetActivePossibleJob(Tile t, JobList.StandardJobs job, bool b){
-		t.Installed.SetPossibleJobActive (job, b);
+	static void SetActivePossibleJob(Tile t, int jobID, bool b){
+		t.Installed.SetPossibleJobActive (jobID, b);
 	}
 }

@@ -198,7 +198,7 @@ public class MapController : MonoBehaviour {
 
 		GameObject e_go = new GameObject ();
 		e_go.name = e.Name;
-		e_go.transform.position = t.GetPosition ();
+		e_go.transform.position = t.GetPosition();
 		SpriteRenderer e_go_sr = e_go.AddComponent<SpriteRenderer> ();
 		e_go_sr.sprite = e.Sprite;
 		e_go_sr.sortingLayerName = "UI";
@@ -207,12 +207,11 @@ public class MapController : MonoBehaviour {
 	}
 
 	public bool RemoveExtraGraphicalElement(Tile t){
+		GameObject obj_go_preexisting;
 
-		GameObject e_go;
-
-		if (plannedObjects.TryGetValue(t, out e_go)) {
-			plannedObjects.Remove (t);
-			Destroy (e_go);
+		if (extraGraphicalElements.TryGetValue (t, out obj_go_preexisting)) {
+			extraGraphicalElements.Remove (t);
+			Destroy (obj_go_preexisting);
 			return true;
 		}
 

@@ -35,8 +35,7 @@ public class VampireController : MonoBehaviour {
 		v_go.transform.SetParent (this.transform, true);
 
 		SpriteRenderer v_go_sr = v_go.AddComponent<SpriteRenderer> ();
-		v_go_sr.sprite = Resources.Load<Sprite>("Sprites/floor");//FIXME
-		v_go_sr.color = Color.red;
+		v_go_sr.sprite = Resources.LoadAll<Sprite>("Sprites/CitizenSheet")[40];//FIXME
 		v_go_sr.sortingLayerName = "Creatures";
 
 		playerVampire.AssignMoveCallback ( (vampire) => {ChangeVampirePosition(vampire, v_go);} );

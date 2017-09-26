@@ -30,7 +30,6 @@ public class UIControllerBuildMode : MonoBehaviour {
 		villagerInfoPanel = canvas.transform.GetChild(4).gameObject;
 
 		textFields = new Text[villagerInfoPanel.transform.childCount];
-		Debug.Log (villagerInfoPanel.transform.childCount);
 
 		for (int i = 0; i < villagerInfoPanel.transform.childCount; i++) {
 			textFields[i] = villagerInfoPanel.transform.GetChild(i).GetComponent<Text> ();
@@ -50,8 +49,6 @@ public class UIControllerBuildMode : MonoBehaviour {
 
 	public void OpenVillagerPanel(VillagerInfo v_info){
 		villagerInfoPanel.SetActive (true);
-
-		Debug.Log(textFields [1] +  "Name: " + v_info.Name);
 
 		//Bc the title is at 0
 		textFields [1].text = "Name: " + v_info.Name;

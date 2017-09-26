@@ -41,8 +41,7 @@ public class VillagerManager : MonoBehaviour {
 		vil_go.transform.SetParent (this.transform, true);
 
 		SpriteRenderer vil_go_sr = vil_go.AddComponent<SpriteRenderer> ();
-		vil_go_sr.sprite = Resources.Load<Sprite>("Sprites/floor");//FIXME
-		vil_go_sr.color = Color.blue;
+		vil_go_sr.sprite = Resources.LoadAll<Sprite>("Sprites/CitizenSheet")[0];
 		vil_go_sr.sortingLayerName = "Creatures";
 
 		v.RegisterPositionChangedCallback ( (villager) => { ChangePosition(villager, vil_go); } );

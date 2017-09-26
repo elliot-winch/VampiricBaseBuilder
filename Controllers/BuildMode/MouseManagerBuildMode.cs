@@ -80,10 +80,9 @@ public class MouseManagerBuildMode : MonoBehaviour {
 			if (t.OccupyingVillager != null) {
 				UIControllerBuildMode.Instance.OpenVillagerPanel (t.OccupyingVillager.Info);
 			} else if(t.Installed != null){
-                //display jobs
-				UIController.Instance.DisplayJobPanel(t, t.Installed.PossibleJobs);
-				JobController.Instance.AddJob (Time.realtimeSinceStartup, new Job(t, JobList.JobFunctions[(int)t.Installed.PossibleJobs[0].possibleJob]));
-            } else {
+	            //display jobs
+				UIController.Instance.DisplayJobPanel(t);
+	        } else {
 				UIControllerBuildMode.Instance.CloseVillagerPanel (); 
 		    }
 	   }

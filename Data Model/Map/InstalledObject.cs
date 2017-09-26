@@ -90,15 +90,15 @@ public class InstalledObject {
 		}
 	}
     
-    public void AddPossibleJob(JobList.StandardJobs job){
-		possibleJobs.Add(new PossibleJob(job, true));
+	public void AddPossibleJob(int jobID, bool t){
+		possibleJobs.Add(new PossibleJob(jobID, t));
     }
 
-	public void SetPossibleJobActive(JobList.StandardJobs job, bool b){
+	public void SetPossibleJobActive(int jobID, bool b){
 		//contains
 	
 		for(int i = 0; i < possibleJobs.Count; i++){
-			if(possibleJobs[i].possibleJob.Equals(job)){
+			if(possibleJobs[i].possibleJobID == jobID){
 				possibleJobs[i].active = b;
 				return;
 			}
@@ -171,11 +171,11 @@ public class InstalledObject {
 
 public class PossibleJob
 {
-	public JobList.StandardJobs possibleJob;
+	public int possibleJobID;
 	public bool active;
 
-	public PossibleJob(JobList.StandardJobs j, bool active){
-		this.possibleJob = j;
+	public PossibleJob(int i, bool active){
+		this.possibleJobID = i;
 		this.active = active;
 	}
 }
