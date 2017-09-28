@@ -4,7 +4,5 @@ using UnityEngine;
 
 public class MouseManagerVampireMode : MonoBehaviour {
 
-	void Update(){
 
-	}
 }

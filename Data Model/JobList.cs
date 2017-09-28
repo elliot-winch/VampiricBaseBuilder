@@ -6,6 +6,8 @@ public static class JobList  {
 
 	public enum StandardJobs
 	{
+		//Idle,
+		//Sleep,
 		StandardInstall,
 		Lock,
 		Unlock

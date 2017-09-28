@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Vampire {
 
+	float size = 0.9f;
+
 	KeyCode up = KeyCode.W;
 	KeyCode left = KeyCode.A;
 	KeyCode down = KeyCode.S;
@@ -22,6 +24,8 @@ public class Vampire {
 			return position;
 		} set {
 			position = new Vector3 (position.x + value.x, position.y + value.y, 0f);
+
+			//change currentTile
 
 			if (onMove != null) {
 				onMove (this);
@@ -57,51 +61,75 @@ public class Vampire {
 	public void Update(float time){
 		UpdateMovement (time);
 	}
+		
+	float toMove;
+	Vector3 movement;
+	bool pressed;
 
-	//For garbage collection purposes, this Vecotr2 is declared here and reused each frame
-
-	Vector3 toMove = new Vector3();
-	Vector3 tryMove = new Vector3();
-	bool pressed = false;
-	Tile[] tryTile = new Tile[4];
-
+	//This might be able to be broken if you travel fast enough
 	void UpdateMovement(float time){
 		pressed = false;
-
-		toMove = Vector3.zero;
+		toMove = time * BaseMoveSpeed / currentTile.MoveCost;
+		movement = Vector3.zero;
 
 		if (Input.GetKey (up)) {
-			toMove.y += time * BaseMoveSpeed / currentTile.MoveCost;
 			pressed = true;
-		}
-		if (Input.GetKey (down)) {
-			toMove.y -= time * BaseMoveSpeed / currentTile.MoveCost;
-			pressed = true;
-		}
-		if (Input.GetKey (left)) {
-			toMove.x -= time * BaseMoveSpeed / currentTile.MoveCost;
-			pressed = true;
-		}
-		if (Input.GetKey (right)) {
-			toMove.x += time * BaseMoveSpeed / currentTile.MoveCost;
-			pressed = true;
-		}
-
-		if(pressed){
-			tryMove = position + toMove;
-			tryTile[0] = MapController.Instance.GetTileAtWorldPos (tryMove);
-			tryTile[1] = MapController.Instance.GetTileAtWorldPos (tryMove.x, tryMove.y + 1);
-			tryTile[2] = MapController.Instance.GetTileAtWorldPos (tryMove.x + 1, tryMove.y);
-			tryTile[3] = MapController.Instance.GetTileAtWorldPos (tryMove.x + 1, tryMove.y + 1);
-
-
-			foreach (Tile t in tryTile) {
-				if (t.CanMoveThrough == false) {
-					return;
+			if (((toMove + (position.y - (int)position.y) + size) > 0)) {
+				Tile t1 =  MapController.Instance.GetTileAtWorldPos (position.x, position.y + size);
+				Tile t2 =  MapController.Instance.GetTileAtWorldPos (position.x + size, position.y + size);
+				if (t1 != null && t1.CanMoveThrough && t2 != null && t2.CanMoveThrough) {
+					movement.y += toMove;
 				}
+			} else {
+				movement.y += toMove;
 			}
-
-			Position = toMove;
 		}
+
+
+		if (Input.GetKey (down)) {
+			pressed = true;
+			if (((position.y - (int)position.y) - toMove) < 0) {
+				Tile t1 =  MapController.Instance.GetTileAtWorldPos (position.x, position.y - size);
+				Tile t2 =  MapController.Instance.GetTileAtWorldPos (position.x + size, position.y - size);
+				if (t1 != null && t1.CanMoveThrough && t2 != null && t2.CanMoveThrough) {
+					movement.y -= toMove;
+				}
+			} else {
+				movement.y -= toMove;
+			}
+		}
+
+
+		if (Input.GetKey (right)) {
+			pressed = true;
+			if ((toMove + (position.x - (int)position.x) + size) > 0) {
+				Tile t1 =  MapController.Instance.GetTileAtWorldPos (position.x + size, position.y );
+				Tile t2 =  MapController.Instance.GetTileAtWorldPos (position.x + size, position.y + size);
+				if (t1 != null && t1.CanMoveThrough && t2 != null && t2.CanMoveThrough) {
+					movement.x += toMove;
+				}
+			} else {
+				movement.x += toMove;
+			}
+		}
+
+
+		if (Input.GetKey (left)) {
+			pressed = true;
+			if (((position.x - (int)position.x) - toMove) < 0) {
+				Tile t1 =  MapController.Instance.GetTileAtWorldPos (position.x - size, position.y);
+				Tile t2 =  MapController.Instance.GetTileAtWorldPos (position.x - size, position.y + size);
+				if (t1 != null && t1.CanMoveThrough && t2 != null && t2.CanMoveThrough) {
+					movement.x -= toMove;
+				}
+			} else {
+				movement.x -= toMove;
+			}
+		}
+
+		if (pressed) {
+			Position = movement;
+		}
+
 	}
 }

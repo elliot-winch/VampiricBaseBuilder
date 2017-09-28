@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class VampireController : MonoBehaviour {
+public class VampireController : MonoBehaviour, IUpdateableWithTime {
 
 	static VampireController _instance;
 
@@ -38,16 +38,23 @@ public class VampireController : MonoBehaviour {
 		v_go_sr.sprite = Resources.LoadAll<Sprite>("Sprites/CitizenSheet")[40];//FIXME
 		v_go_sr.sortingLayerName = "Creatures";
 
+		v_go_sr.material = Resources.Load<Material> ("Materials/LightingMat");
+
 		playerVampire.AssignMoveCallback ( (vampire) => {ChangeVampirePosition(vampire, v_go);} );
 
 		GetComponent<CameraControllerVampireMode> ().Begin (this.playerVampire);
 
 	}
 
-	void Update(){
+	public void UpdateWithTime(float time){
 		if (playerVampire != null) {
-			playerVampire.Update (Time.deltaTime);
+			playerVampire.Update (time);
 		}
+	}
+
+	//For IUpdateableWithTime inteface
+	public bool IsActive(){
+		return this.enabled;
 	}
 
 	void ChangeVampirePosition(Vampire v, GameObject v_go){

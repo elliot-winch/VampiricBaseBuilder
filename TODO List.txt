@@ -7,27 +7,24 @@ Art (player, dirt, walls etc)
 Audio
 
 Vampire:
-Bug fix: Cannot fit down 1 wide corridors
+Sleep
+Feast / night mode
 
 World:
 Implement beds with time of day
-Implement tables/chairs/food
+Implement tables/chairs/food						<=== Next: chairs, tables, beds for eating / sleeping. Idle workers.
 Implement loose objects
 Implement random generation w/ biomes/micro-biomes
-Doors: implement locking of doors
-
-Villagers:
-Bug: Villagers won't work where a villager is currently standing
 
 Jobs:
 Different types of jobs (eating, sleeping, working)
-Imeplement work (wood cutting, mining, etc.)
-Cancelling jobs
+Imeplement work (wood cutting, mining, etc.) and occuaptions
+Cancelling jobs -> with UI element
 Moving to higher priority jobs
-Completing jobs in more logical order
 Delete installed 
 Flooring is job
 
+Villagers:
 Pathfinding: 
 Fix being able to go through diagonal walls ?
 0wv0	0w00
@@ -40,7 +37,12 @@ Clean Up:
 Camera movement less jarring
 Drag area should have UI to show boundries of dragging
 
+
+
 -----
+Scratch:
+
+
 Blocked: 
 
 Why might a tile be blocked:					Blocks through traffic?:

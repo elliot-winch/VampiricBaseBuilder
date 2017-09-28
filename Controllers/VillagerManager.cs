@@ -2,13 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class VillagerManager : MonoBehaviour {
+public class VillagerManager : MonoBehaviour, IUpdateableWithTime {
 
+	static VillagerManager _instance;
+
+	public static VillagerManager Instance {
+		get {
+			return _instance;
+		}
+	}
 
 	List<Villager> villagers;
 	//do we need to link villager to it graphical representation in a dictionary?
 
 	void Start(){
+		if (_instance != null) {
+			Debug.LogError ("There should not be more than one VillagerManager");
+		}
+
+		_instance = this;
+
 		villagers = new List<Villager> ();
 
 		//FIXME: testing only
@@ -26,10 +39,15 @@ public class VillagerManager : MonoBehaviour {
 		}
 	}
 
-	void Update(){
+	public void UpdateWithTime(float time){
 		foreach (Villager vil in villagers) {
-			vil.Update (Time.deltaTime);
+			vil.Update (time);
 		}
+	}
+
+	//For IUpdateableWithTime inteface
+	public bool IsActive(){
+		return this.enabled;
 	}
 
 	GameObject CreateVillagerObject(Villager v){
@@ -43,6 +61,7 @@ public class VillagerManager : MonoBehaviour {
 		SpriteRenderer vil_go_sr = vil_go.AddComponent<SpriteRenderer> ();
 		vil_go_sr.sprite = Resources.LoadAll<Sprite>("Sprites/CitizenSheet")[0];
 		vil_go_sr.sortingLayerName = "Creatures";
+		vil_go_sr.material = Resources.Load<Material> ("Materials/LightingMat");
 
 		v.RegisterPositionChangedCallback ( (villager) => { ChangePosition(villager, vil_go); } );
 

@@ -79,7 +79,9 @@ public class MapController : MonoBehaviour {
 				//FIXME: make general case, probs pass an object or type & use a lambda
 				tile_data.RegisterInstalledChangeCallback ( CreateInstalledObject );
 
-				tile_go.AddComponent<SpriteRenderer> ();
+				SpriteRenderer tile_sr = tile_go.AddComponent<SpriteRenderer> ();
+				tile_sr.material = Resources.Load<Material> ("Materials/LightingMat");
+
 			}
 		}
 	}
@@ -115,6 +117,7 @@ public class MapController : MonoBehaviour {
 		}
 
 		tile_go.GetComponent<SpriteRenderer> ().sprite = TileTypeHolder.sprites [(int)tile_data.Type];
+
 	}
 
 		
@@ -146,6 +149,7 @@ public class MapController : MonoBehaviour {
 		SpriteRenderer obj_go_sr = obj_go.AddComponent<SpriteRenderer> ();
 		obj_go_sr.sprite = obj.Sprite;
 		obj_go_sr.sortingLayerName = "InstalledObject";
+		obj_go_sr.material = Resources.Load<Material> ("Materials/LightingMat");
 
 		obj_go_sr.color = new Color (obj_go_sr.color.r, obj_go_sr.color.g, obj_go_sr.color.b, obj_go_sr.color.a * 0.5f);
 
@@ -190,6 +194,7 @@ public class MapController : MonoBehaviour {
 		obj_go_sr.sprite = obj.Sprite;
 		obj_go_sr.sortingLayerName = obj.SortingLayer;
 		obj_go_sr.sortingOrder = obj.SortingOrder;
+		obj_go_sr.material = Resources.Load<Material> ("Materials/LightingMat");
 
 		installedObjects.Add (tile, obj_go);
 	}
@@ -202,6 +207,7 @@ public class MapController : MonoBehaviour {
 		SpriteRenderer e_go_sr = e_go.AddComponent<SpriteRenderer> ();
 		e_go_sr.sprite = e.Sprite;
 		e_go_sr.sortingLayerName = "UI";
+		//Do I want these to be affected by light? Idk bro
 
 		extraGraphicalElements.Add (t, e_go);
 	}
