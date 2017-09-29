@@ -21,10 +21,6 @@ public class Tile : INode{
 	float moveCost; //FIXME: to depend on flooring/material etc.
 
 	Action<Tile> typeChange;
-	//This is for the player placing an object (ie job generated)
-	Action<Tile> plannedChange;
-	//This is for the system placing an object (ie no job generated)
-	Action<Tile> rawInstallChange;
 	Action<Tile> moveCostChange;
 
 	public int X {
@@ -63,17 +59,8 @@ public class Tile : INode{
 			return planned;
 		}
 		set {
-			if (planned != null) {
-				Debug.Log ("Plan already exists here");
-
-			} else if ((installed == null && value != null) || (installed != null && value == null)) {
-				InstalledObject obj = planned;
-				planned = value;
-				if (plannedChange != null && obj != planned){
-					plannedChange (this);
-				}
-			} 
-		}
+			planned = value;
+		} 
 	}
 
 	public InstalledObject Installed {
@@ -81,16 +68,12 @@ public class Tile : INode{
 			return installed;
 		}
 		set {
-			if ((installed == null && value != null) || (installed != null && value == null)) {
-				Debug.Log (installed + " : " + value);
-				InstalledObject obj = installed;
+			if ((installed == null && value != null) /*|| (installed != null && value == null)*/) {
+				planned = null;
 				installed = value;
-				this.moveCost = value.GetMoveCost();
 
-				if (rawInstallChange != null && obj != installed) {
-					planned = null;
-					rawInstallChange (this);
-				}
+				this.moveCost = value.GetMoveCost();
+				this.CanMoveThrough = value.CanMoveThrough;
 			} else {
 				if (value != null) {
 					Debug.Log ("Object already installed here");
@@ -135,14 +118,6 @@ public class Tile : INode{
 		typeChange += callback;
 	}
 
-	public void RegisterPlannedChangeCallback(Action<Tile> callback){
-		plannedChange += callback;
-	}
-
-	public void RegisterInstalledChangeCallback(Action<Tile> callback){
-		rawInstallChange += callback;
-	}
-
 	public void ResetTile(){
 		this.Type = originalType;
 	}
@@ -183,19 +158,6 @@ public class Tile : INode{
 		}
 			
 		return currentMin;
-	}
-
-	public void PlannedComplete(){
-		installed = planned;
-		planned = null;
-
-		if (installed != null) {
-			this.moveCost = installed.GetMoveCost();
-			this.CanMoveThrough = installed.CanMoveThrough;
-		} else {
-			this.moveCost = 1f;
-			//this.moveCost = originalType.moveCost;//FIXME
-		}
 	}
 
 	public bool Equals(Tile t){

@@ -42,6 +42,8 @@ public class TimeController : MonoBehaviour {
 
 	[Range(0f,1f)]
 	public float minAmbientIntensity;
+	[Range(0f,1f)]
+	public float maxAmbientIntensity;
 
 	//Time aspects of AI
 	Action onSunset;
@@ -122,7 +124,6 @@ public class TimeController : MonoBehaviour {
 		secondsSinceSunChange += time;
 
 		if(secondsSinceSunChange > secondsInDay) {
-			Debug.Log (night);
 			if (night) {
 				onSunrise ();
 
@@ -173,7 +174,7 @@ public class TimeController : MonoBehaviour {
 	}
 
 	void RiseTheSun(){
-		StartCoroutine ("ChangeLight", 1f);
+		StartCoroutine ("ChangeLight", maxAmbientIntensity);
 	}
 		
 	//Pos should be -1 or 1

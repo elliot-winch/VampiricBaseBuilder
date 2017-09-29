@@ -51,16 +51,16 @@ public class Villager {
 			//Prev tile
 			if (currentTile != null) {
 				currentTile.OccupyingVillager = null;
-				if (currentTile.Installed != null) {
-					currentTile.Installed.PrevInteract (currentTile);
+				if (currentTile.Installed != null && CurrentTile.Installed.Interaction != null) {
+					currentTile.Installed.Interaction.PrevInteract (currentTile);
 				}
 			}
 			//New current tile
 			currentTile = value;
 			currentTile.OccupyingVillager = this;
 
-			if (currentTile.Installed != null) {
-				currentTile.Installed.Interact (currentTile);
+			if (currentTile.Installed != null && currentTile.Installed.Interaction != null) {
+				currentTile.Installed.Interaction.Interact (currentTile);
 			}
 		}
 	}

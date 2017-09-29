@@ -11,7 +11,6 @@ using UnityEngine;
 
 public class Job  {
 
-
 	Tile tile;
 
 	Action<Tile> onCompleteJob;

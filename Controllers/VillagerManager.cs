@@ -59,9 +59,9 @@ public class VillagerManager : MonoBehaviour, IUpdateableWithTime {
 		vil_go.transform.SetParent (this.transform, true);
 
 		SpriteRenderer vil_go_sr = vil_go.AddComponent<SpriteRenderer> ();
-		vil_go_sr.sprite = Resources.LoadAll<Sprite>("Sprites/CitizenSheet")[0];
+		vil_go_sr.sprite = Resources.LoadAll<Sprite>("Sprites/spriteSheet1")[17];
 		vil_go_sr.sortingLayerName = "Creatures";
-		vil_go_sr.material = Resources.Load<Material> ("Materials/LightingMat");
+		vil_go_sr.material = Resources.Load<Material> ("Materials/Lit2DMat");
 
 		v.RegisterPositionChangedCallback ( (villager) => { ChangePosition(villager, vil_go); } );
 

@@ -26,7 +26,6 @@ public static class JobList  {
 
 
 		jobList.Add (New);
-		jobList [(int)StandardJobs.StandardInstall] += TellTileToComplete;
 		jobList [(int)StandardJobs.StandardInstall] += MakeNewGraphicalObject;
 		jobList [(int)StandardJobs.StandardInstall] += MoveVillagersOutOfWay;
 
@@ -59,12 +58,8 @@ public static class JobList  {
 		//This method is to replace new Action<Tile>(), which for some unknown reason returned an error.
 	}
 
-	static void TellTileToComplete(Tile t){
-		t.PlannedComplete ();
-	}
-
 	static void MakeNewGraphicalObject(Tile t){
-		MapController.Instance.CreateInstalledObject (t);
+		MapController.Instance.CreateObject (t, t.Planned, false);
 	}
 
 	static void MoveVillagersOutOfWay(Tile t){
@@ -76,9 +71,6 @@ public static class JobList  {
 
 		}
 	}
-
-//	static void PlaceWall(Tile t){
-//	}
 
 	static void ToggleMoveThrough(Tile t){
 		t.CanMoveThrough = !t.CanMoveThrough;
@@ -94,7 +86,7 @@ public static class JobList  {
 
 	static void RemoveGraphic(Tile t){
 
-		Debug.Log ("Removing graphic @ " + t);
+		Debug.Log ("Removing graphic @ " + t.X + " " + t.Y);
 
 		if (MapController.Instance.ExtraGraphicalElements.ContainsKey (t)) {
 			MapController.Instance.RemoveExtraGraphicalElement (t);
@@ -102,6 +94,6 @@ public static class JobList  {
 	}
 
 	static void SetActivePossibleJob(Tile t, int jobID, bool b){
-		t.Installed.SetPossibleJobActive (jobID, b);
+		t.Installed.PossibleJobs.SetPossibleJobActive (jobID, b);
 	}
 }

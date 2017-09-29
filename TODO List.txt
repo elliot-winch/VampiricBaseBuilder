@@ -11,10 +11,11 @@ Sleep
 Feast / night mode
 
 World:
-Implement beds with time of day
+Implement beds 
 Implement tables/chairs/food						<=== Next: chairs, tables, beds for eating / sleeping. Idle workers.
 Implement loose objects
 Implement random generation w/ biomes/micro-biomes
+Installed items that dont block paths use tiles movecost
 
 Jobs:
 Different types of jobs (eating, sleeping, working)
@@ -32,6 +33,10 @@ Fix being able to go through diagonal walls ?
 000w	000w
 
 Bugs:
+Light: 
+	Washed out sprites under multiple sources
+	Wall do not block light
+
 
 Clean Up:
 Camera movement less jarring

@@ -11,7 +11,7 @@ public class BuildingManager : MonoBehaviour {
 			return _instance;
 		}
 	}
-
+		
 	bool buildMode;
 	bool dragMode;
 	Action<Tile> build;
@@ -47,10 +47,11 @@ public class BuildingManager : MonoBehaviour {
 
 		SetMode ((int)BuildModes.None);
 	}
-		
-	public enum BuildModes{ None, DeleteAll, DeleteInstalled, BuildFloor, BuildInstalled/*, BuildDoor*/ }
 
-	int currentInstalledObjID = 0;
+	//Set Mode
+	public enum BuildModes{ None, DeleteAll, DeleteInstalled, BuildFloor, BuildMultiple, BuildSingle}
+
+	InstalledObject currentInstalledObj;
 
 	public void SetMode(int mode){
 
@@ -67,6 +68,7 @@ public class BuildingManager : MonoBehaviour {
 				tile.ResetTile();
 				tile.Planned = null;
 				};
+			ChangeObj (-1);
 			break;
 		case BuildModes.DeleteInstalled:
 			buildMode = true;
@@ -74,24 +76,33 @@ public class BuildingManager : MonoBehaviour {
 			build = (tile) => {
 				tile.Planned = null;
 			};
+			ChangeObj (-1);
 			break;
 		case BuildModes.BuildFloor:
 			buildMode = true;
 			dragMode = true;
-			build =  (tile /*, Material*/) => { tile.Type = Tile.TileType.WoodFloor;};
+			build = (tile /*, Material*/) => {
+				tile.Type = Tile.TileType.WoodFloor;
+			};
+			ChangeObj (-1);
+
 			break;
-		case BuildModes.BuildInstalled:
+		case BuildModes.BuildMultiple:
 			buildMode = true;
 			dragMode = true;
-			build = (tile /*, Material*/) => { InstalledObjectHolder.GetValue(currentInstalledObjID).PlaceObjectPlan(tile);
-				};
+			build = (tile /*, Material*/) => 
+			{ 
+				MapController.Instance.CreateObject(tile, currentInstalledObj, true);
+			};
 			break;
-			/*
-		case BuildMode.BuildDoor:
+		case BuildModes.BuildSingle:
 			buildMode = true;
 			dragMode = false;
+			build = (tile /*, Material*/) => 
+			{ 
+				MapController.Instance.CreateObject(tile, currentInstalledObj, true);
+			};
 			break;
-			*/
 		default:
 			Debug.LogError ("Button needs setting!");
 			break;
@@ -99,10 +110,14 @@ public class BuildingManager : MonoBehaviour {
 	}
 
 	public void ChangeObj(int objID){
-		if (currentInstalledObjID >= InstalledObjectHolder.MaxObjID) {
+		if (objID == -1) {
+			currentInstalledObj = null;
+		} else if (objID >= InstalledObjectHolder.MaxObjID || objID < 0 || InstalledObjectHolder.Installables[objID] == null) {
 			throw new InvalidOperationException ("No object associated with this ID");
 		} else {
-			currentInstalledObjID = objID;
+			currentInstalledObj = InstalledObjectHolder.Installables[objID];
 		}
+
+		MouseManagerBuildMode.Instance.SetCursor (currentInstalledObj);
 	}
 }

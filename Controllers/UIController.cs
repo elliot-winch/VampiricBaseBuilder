@@ -43,7 +43,7 @@ public class UIController : MonoBehaviour {
 		rt.position = t.GetPosition () + offset;
 		//Position is bottom right corner of tile
 
-		List<PossibleJob> tilePosJobs = t.Installed.PossibleJobs;
+		List<PossibleJob> tilePosJobs = t.Installed.PossibleJobs.ListJobs;
 
 		int activeCount = 0;
 		for (int counter = 0; counter < tilePosJobs.Count; counter++) {

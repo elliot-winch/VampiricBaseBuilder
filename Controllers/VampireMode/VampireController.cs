@@ -35,10 +35,10 @@ public class VampireController : MonoBehaviour, IUpdateableWithTime {
 		v_go.transform.SetParent (this.transform, true);
 
 		SpriteRenderer v_go_sr = v_go.AddComponent<SpriteRenderer> ();
-		v_go_sr.sprite = Resources.LoadAll<Sprite>("Sprites/CitizenSheet")[40];//FIXME
+		v_go_sr.sprite = Resources.LoadAll<Sprite>("Sprites/spriteSheet1")[20];//FIXME
 		v_go_sr.sortingLayerName = "Creatures";
 
-		v_go_sr.material = Resources.Load<Material> ("Materials/LightingMat");
+		v_go_sr.material = Resources.Load<Material> ("Materials/Lit2DMat");
 
 		playerVampire.AssignMoveCallback ( (vampire) => {ChangeVampirePosition(vampire, v_go);} );
 

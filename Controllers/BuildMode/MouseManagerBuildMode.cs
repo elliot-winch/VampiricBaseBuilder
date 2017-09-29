@@ -17,6 +17,8 @@ public class MouseManagerBuildMode : MonoBehaviour {
 	public GameObject cursorPrefab;
 
 	GameObject cursor;
+	Sprite defaultSprite;
+	int cursorHeight;
 
 	BuildingManager bm;
 
@@ -32,9 +34,11 @@ public class MouseManagerBuildMode : MonoBehaviour {
 		_instance = this;
 
 		bm = BuildingManager.Instance;
-		cursor = Instantiate (cursorPrefab, Vector3.zero, Quaternion.identity);
+
+		DefautCursor ();
 
 		startMousePos = Input.mousePosition;
+
 	}
 
 	void Update(){
@@ -66,9 +70,9 @@ public class MouseManagerBuildMode : MonoBehaviour {
 
 		if (tile != null) {
 			cursor.SetActive (true);
-			cursor.transform.position = new Vector3 (tile.X, tile.Y);
+			cursor.transform.position = tile.GetPosition ();
 		} else {
-			cursor.SetActive (false);
+			cursor.SetActive (true);
 		}
 	}
 
@@ -157,6 +161,32 @@ public class MouseManagerBuildMode : MonoBehaviour {
 				}
 			}
 		}
+	}
+
+	public void SetCursor(InstalledObject obj){
+		Destroy (cursor);
+
+		if (obj == null) {
+			DefautCursor ();
+		} else {
+			cursor = new GameObject();
+			for (int i = 0; i < obj.RelativeTiles.Length; i++) {
+				GameObject g = new GameObject ();
+				g.transform.SetParent(cursor.transform);
+				g.transform.position = new Vector3 (obj.RelativeTiles [i] [0], obj.RelativeTiles [i] [1]);
+				SpriteRenderer sr = g.AddComponent<SpriteRenderer> ();
+				sr.sprite = InstalledObjectHolder.Sprites [obj.ID].Sprites [i];
+				sr.color = new Color (sr.color.r, sr.color.g, sr.color.b, sr.color.a * 0.5f);
+			}
+			cursorHeight = obj.Height;
+		}
+	}
+
+	void DefautCursor(){
+		cursor = new GameObject();
+		cursor = Instantiate (cursorPrefab, Vector3.zero, Quaternion.identity);
+		defaultSprite = cursor.GetComponent<SpriteRenderer> ().sprite;
+		cursorHeight = 1;
 	}
 
 	public void SetCursorActive(bool b){

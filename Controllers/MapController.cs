@@ -74,13 +74,8 @@ public class MapController : MonoBehaviour {
 				//FIXME: flooring is job
 				tile_data.RegisterTileTypeChangeCallback ((tile) => { OnTileTypeChanged(tile, tile_go);} );
 
-				tile_data.RegisterPlannedChangeCallback ( CreatePlannedObject );
-
-				//FIXME: make general case, probs pass an object or type & use a lambda
-				tile_data.RegisterInstalledChangeCallback ( CreateInstalledObject );
-
 				SpriteRenderer tile_sr = tile_go.AddComponent<SpriteRenderer> ();
-				tile_sr.material = Resources.Load<Material> ("Materials/LightingMat");
+				tile_sr.material = Resources.Load<Material> ("Materials/Lit2DMat");
 
 			}
 		}
@@ -121,82 +116,74 @@ public class MapController : MonoBehaviour {
 	}
 
 		
-	void CreatePlannedObject(Tile tile){
-		if (tile == null) {
+	public void CreateObject(Tile baseTile, InstalledObject obj, bool plan){
+		if (baseTile == null) {
 			Debug.LogError ("Cannot init object on null tile");
 			return;
 		}
 
-		if (tile.Planned == null) {
-			GameObject obj_go_preexisting;
-
-			if (installedObjects.TryGetValue (tile, out obj_go_preexisting)) {
-				installedObjects.Remove (tile);
-				//FIXME: shouldn't destroy object, should start job to be dismantled
-				Destroy (obj_go_preexisting);
+		//Destory plan objs
+		if (!plan) {
+			GameObject obj_to_destroy;
+			for (int i = 0; i < obj.RelativeTiles.Length; i++) {
+				if (plannedObjects.TryGetValue (GetTileAtWorldPos (baseTile.X + obj.RelativeTiles [i] [0], baseTile.Y + obj.RelativeTiles [i] [1]), out obj_to_destroy)) {
+					plannedObjects.Remove (baseTile);
+					Destroy (obj_to_destroy);
+				}
 			}
-			return;
-		}
-
-		InstalledObject obj = tile.Planned;
-
-		GameObject obj_go = new GameObject ();
-		obj_go.name = obj.Name;
-		obj_go.transform.position = new Vector3 (obj.BaseTile.X, obj.BaseTile.Y);
-
-		obj_go.transform.SetParent (this.transform, true);
-
-		SpriteRenderer obj_go_sr = obj_go.AddComponent<SpriteRenderer> ();
-		obj_go_sr.sprite = obj.Sprite;
-		obj_go_sr.sortingLayerName = "InstalledObject";
-		obj_go_sr.material = Resources.Load<Material> ("Materials/LightingMat");
-
-		obj_go_sr.color = new Color (obj_go_sr.color.r, obj_go_sr.color.g, obj_go_sr.color.b, obj_go_sr.color.a * 0.5f);
-
-		plannedObjects.Add (tile, obj_go);
-
-		//Add job
-		JobController.Instance.AddJob (Time.realtimeSinceStartup, new Job(tile, JobList.JobFunctions[(int)tile.Planned.OnJobComplete]));
-	}
-
-	public void CreateInstalledObject(Tile tile){
-		if (tile == null) {
-			Debug.LogError ("Cannot init object on null tile");
-			return;
-		}
-
-		GameObject obj_toDestroy;
-
-		if (plannedObjects.TryGetValue(tile, out obj_toDestroy)) {
-			plannedObjects.Remove (tile);
-			Destroy (obj_toDestroy);
-		}
-
-		if (tile.Installed == null) {
-			GameObject obj_go_preexisting;
-
-			if (installedObjects.TryGetValue (tile, out obj_go_preexisting)) {
-				installedObjects.Remove (tile);
-				Destroy (obj_go_preexisting);
+		} else {
+			//Validate position
+			for (int i = 0; i < obj.RelativeTiles.Length; i++) {
+				Tile t = MapController.Instance.GetTileAtWorldPos (baseTile.X + obj.RelativeTiles [i] [0], baseTile.Y + obj.RelativeTiles [i] [1]);
+				if (t == null || !obj.PlacementValidation (t)) {
+					Debug.Log ("Cannot place plan here");
+					return;
+				}  
 			}
-			return;
 		}
 
-		InstalledObject obj = tile.Installed;
+		//Foreach tile in obj
+		baseTile.Planned = obj;	
+		int[][] relativeTiles = obj.RelativeTiles;
 
-		GameObject obj_go = new GameObject ();
-		obj_go.name = obj.Name;
-		obj_go.transform.position = tile.GetPosition ();
+		for (int i = 0; i < relativeTiles.Length; i++) {
+			Tile currentTile = GetTileAtWorldPos (baseTile.X + relativeTiles[i][0], baseTile.Y + relativeTiles[i][1]);
 
-		obj_go.transform.SetParent (this.transform, true);
+			GameObject obj_go = new GameObject ();
+			obj_go.name = obj.Name;
+			obj_go.transform.position = currentTile.GetPosition ();
 
-		SpriteRenderer obj_go_sr = obj_go.AddComponent<SpriteRenderer> ();
-		obj_go_sr.sprite = obj.Sprite;
-		obj_go_sr.sortingLayerName = obj.SortingLayer;
-		obj_go_sr.sortingOrder = obj.SortingOrder;
-		obj_go_sr.material = Resources.Load<Material> ("Materials/LightingMat");
+			obj_go.transform.SetParent (this.transform, true);
 
-		installedObjects.Add (tile, obj_go);
+			SpriteRenderer obj_go_sr = obj_go.AddComponent<SpriteRenderer> ();
+
+			obj_go_sr.sprite = InstalledObjectHolder.Sprites [obj.ID].Sprites [i];
+			obj_go_sr.sortingLayerName = InstalledObjectHolder.Sprites [obj.ID].SortingLayer;
+			obj_go_sr.sortingOrder = InstalledObjectHolder.Sprites [obj.ID].SortingOrder;
+			obj_go_sr.material = Resources.Load<Material> ("Materials/Lit2DMat");
+
+			if (plan) {
+				obj_go_sr.color = new Color (obj_go_sr.color.r, obj_go_sr.color.g, obj_go_sr.color.b, obj_go_sr.color.a * 0.5f);
+				plannedObjects.Add (currentTile, obj_go);
+				currentTile.Planned = obj;
+			} else {
+				installedObjects.Add (currentTile, obj_go);
+				currentTile.Installed = obj;
+			}
+
+		}
+			
+		if (plan) {
+			JobController.Instance.AddJob (Time.realtimeSinceStartup, new Job (baseTile, JobList.JobFunctions [(int)obj.OnJobComplete]));
+		} else {
+			if (obj.SpawnAdd != null) {
+				foreach (GameObject g in obj.SpawnAdd.Additions) {
+					Debug.Log (g.name);
+
+					Instantiate (g, installedObjects[baseTile].transform);
+				}
+			}
+		}
 	}
 
 	public void AddExtraGraphicalElement(Tile t, ExtraGraphicalElement e){
