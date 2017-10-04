@@ -42,6 +42,7 @@ public class BuildingManager : MonoBehaviour {
 
 		//Move this?
 		InstalledObjectHolder.Init ();
+		LooseObjectFactory.Init ();
 		TileTypeHolder.Init ();
 		ExtraGraphicalElementHolder.Init ();
 
@@ -119,5 +120,6 @@ public class BuildingManager : MonoBehaviour {
 		}
 
 		MouseManagerBuildMode.Instance.SetCursor (currentInstalledObj);
+
 	}
 }

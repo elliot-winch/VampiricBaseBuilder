@@ -51,7 +51,7 @@ public class UIController : MonoBehaviour {
 
 				GameObject button = Instantiate (buttonPrefab, jobListPanel.transform);
 
-				button.GetComponentInChildren<Text> ().text = ((JobList.StandardJobs)tilePosJobs[counter].possibleJobID).ToString();
+				button.GetComponentInChildren<Text> ().text = ((JobList.CombinedJobs)tilePosJobs[counter].possibleJobID).ToString();
 				int value = tilePosJobs [counter].possibleJobID;
 
 				button.GetComponent<Button>().onClick.AddListener(

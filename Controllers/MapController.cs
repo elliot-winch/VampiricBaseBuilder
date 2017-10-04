@@ -10,6 +10,7 @@ public class MapController : MonoBehaviour {
 
 	Dictionary<Tile, GameObject> plannedObjects;
 	Dictionary<Tile, GameObject> installedObjects;
+	Dictionary<Tile, GameObject> looseObjects;
 	Dictionary<Tile, GameObject> extraGraphicalElements;
 
 	public Sprite floorSprite;
@@ -38,6 +39,12 @@ public class MapController : MonoBehaviour {
 		}
 	}
 
+	public Dictionary<Tile, GameObject> LooseObjects {
+		get {
+			return looseObjects;
+		}
+	}
+
 	public Dictionary<Tile, GameObject> ExtraGraphicalElements {
 		get {
 			return extraGraphicalElements;
@@ -52,11 +59,15 @@ public class MapController : MonoBehaviour {
 
 		plannedObjects = new Dictionary<Tile, GameObject> ();
 		installedObjects = new Dictionary<Tile, GameObject> ();
+		looseObjects = new Dictionary<Tile, GameObject> ();
         extraGraphicalElements = new Dictionary<Tile, GameObject> ();
 
 		Init ();
 
 		BuildMapTileType ();
+
+		LooseObjectFactory.CreateLooseObject (0, GetTileAtWorldPos (20, 20));
+
 	}
 
 	void Init(){
@@ -73,6 +84,13 @@ public class MapController : MonoBehaviour {
 
 				//FIXME: flooring is job
 				tile_data.RegisterTileTypeChangeCallback ((tile) => { OnTileTypeChanged(tile, tile_go);} );
+
+				tile_data.RegisterLooseCallback((tile) => 
+					{
+						MakeLooseObject(tile);
+						UIControllerBuildMode.Instance.UpdateInvUI();
+					} 
+				);
 
 				SpriteRenderer tile_sr = tile_go.AddComponent<SpriteRenderer> ();
 				tile_sr.material = Resources.Load<Material> ("Materials/Lit2DMat");
@@ -184,6 +202,32 @@ public class MapController : MonoBehaviour {
 				}
 			}
 		}
+	}
+
+	public void MakeLooseObject(Tile t){
+
+		LooseObject l = t.Loose;
+
+		if (t.Loose == null) {
+			GameObject obj_go_preexisting;
+
+			if (looseObjects.TryGetValue (t, out obj_go_preexisting)) {
+				looseObjects.Remove (t);
+				Destroy (obj_go_preexisting);
+			}
+
+			return;
+		}
+
+		GameObject l_go = new GameObject ();
+		l_go.name = l.Name;
+		l_go.transform.position = t.GetPosition();
+		SpriteRenderer l_go_sr = l_go.AddComponent<SpriteRenderer> ();
+		l_go_sr.sprite = LooseObjectFactory.Sprites[l.ID].Sprite;
+		l_go_sr.sortingLayerName = LooseObjectFactory.Sprites[l.ID].SortingLayer;
+		l_go_sr.sortingOrder = LooseObjectFactory.Sprites [l.ID].SortingOrder;
+
+		looseObjects.Add (t, l_go);
 	}
 
 	public void AddExtraGraphicalElement(Tile t, ExtraGraphicalElement e){

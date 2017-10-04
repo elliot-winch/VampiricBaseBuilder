@@ -69,8 +69,6 @@ public class VillagerManager : MonoBehaviour, IUpdateableWithTime {
 	}
 
 	void ChangePosition(Villager v, GameObject vil_go){
-		if (v.HasPath) {
-			vil_go.transform.position = v.Position;
-		}
+		vil_go.transform.position = v.Position;
 	}
 }

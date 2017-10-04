@@ -1,0 +1,9 @@
+﻿Justifactions of Design
+
+Installed Objects
+
+Installing an InstalledObject(eg wall) -> spawns a copy of wall object, sorted in the holder
+Generating a LooseObject (eg log) -> spawns a new LooseObject, using the factory to generate with the appropriate stats
+
+The is bc installed objects fundemetnally change their tile, so the tile will store info about the modifying object
+Loose objects simply sit in a tile, but are entities in their own right

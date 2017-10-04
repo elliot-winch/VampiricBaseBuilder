@@ -24,8 +24,11 @@ public class Path  {
 			}
 		}
 
-		while (startTile.CanMoveThrough == false) {
-			startTile = startTile.NearestNeighbourTo(startTile.X, startTile.Y);
+		if (startTile.CanMoveThrough == false) {
+			Debug.Log ("Tried to set path with start in impassable tile");
+			return;
+			//FIXME eventually
+
 		}
 
 		PathNode<Tile> start = nodes[startTile];
@@ -58,7 +61,7 @@ public class Path  {
 		foreach(PathNode<Tile> n in nodes.Values) {
 			g_score[n] = Mathf.Infinity;
 		}
-
+			
 		g_score[ start ] = 0;
 
 		Dictionary<PathNode<Tile>, float> f_score = new Dictionary<PathNode<Tile>, float>();

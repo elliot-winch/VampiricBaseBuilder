@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-public class Tile : INode{
+public class Tile : INode, IJobPassable{
 
 	public enum TileType{ Dirt, WoodFloor, Last /*Custom null type */};
 
@@ -9,6 +9,8 @@ public class Tile : INode{
 	TileType originalType = TileType.Last;
 
 	LooseObject loose;
+	Action<Tile> onLooseUpdate;
+
 	InstalledObject planned;
 	InstalledObject installed;
 
@@ -53,6 +55,26 @@ public class Tile : INode{
 			}
 		}
 	}
+
+	//LooseObject Handling
+	public LooseObject Loose {
+		get {
+			return loose;
+		}
+		set {
+			loose = value;
+
+			if (onLooseUpdate != null) {
+				onLooseUpdate (this);
+			}
+		}
+	}
+
+	public void RegisterLooseCallback(Action<Tile> callback){
+		onLooseUpdate += callback;
+	}
+
+	// // // // // 
 
 	public InstalledObject Planned {
 		get {

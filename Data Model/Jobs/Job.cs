@@ -9,11 +9,11 @@ using UnityEngine;
  * 
  */
 
-public class Job  {
+public class Job {
 
 	Tile tile;
 
-	Action<Tile> onCompleteJob;
+	Action<Tile, Villager> onCompleteJob;
 
 	//float originalJobTime ???
 	float jobTime;
@@ -26,7 +26,7 @@ public class Job  {
 
 	public bool Active { get; set; }
 
-	public Action<Tile> OnCompleteJob {
+	public Action<Tile, Villager> OnCompleteJob {
 		get {
 			return onCompleteJob;
 		}
@@ -38,7 +38,7 @@ public class Job  {
 		}
 	}
 
-	public Job(Tile tile, Action<Tile> job, float jobTime = 2f){
+	public Job(Tile tile, Action<Tile, Villager> job, float jobTime = 2f){
 		this.Active = true;
 		this.tile = tile;
 		this.onCompleteJob = job;

@@ -17,7 +17,6 @@ public class MouseManagerBuildMode : MonoBehaviour {
 	public GameObject cursorPrefab;
 
 	GameObject cursor;
-	Sprite defaultSprite;
 	int cursorHeight;
 
 	BuildingManager bm;
@@ -82,8 +81,8 @@ public class MouseManagerBuildMode : MonoBehaviour {
 			Tile t = MapController.Instance.GetTileAtWorldPos(new Vector3((int)mousePos.x, (int)mousePos.y));
             
 			if (t.OccupyingVillager != null) {
-				UIControllerBuildMode.Instance.OpenVillagerPanel (t.OccupyingVillager.Info);
-			} else if(t.Installed != null){
+				UIControllerBuildMode.Instance.OpenVillagerPanel (t.OccupyingVillager);
+			} else if(t.Installed != null && t.Installed.PossibleJobs != null){
 	            //display jobs
 				UIController.Instance.DisplayJobPanel(t);
 	        } else {
@@ -170,8 +169,10 @@ public class MouseManagerBuildMode : MonoBehaviour {
 			DefautCursor ();
 		} else {
 			cursor = new GameObject();
+			cursor.name = "CursorCustom";
 			for (int i = 0; i < obj.RelativeTiles.Length; i++) {
 				GameObject g = new GameObject ();
+				g.name = "CursorCustomChild";
 				g.transform.SetParent(cursor.transform);
 				g.transform.position = new Vector3 (obj.RelativeTiles [i] [0], obj.RelativeTiles [i] [1]);
 				SpriteRenderer sr = g.AddComponent<SpriteRenderer> ();
@@ -182,10 +183,10 @@ public class MouseManagerBuildMode : MonoBehaviour {
 		}
 	}
 
-	void DefautCursor(){
-		cursor = new GameObject();
+	public void DefautCursor(){
 		cursor = Instantiate (cursorPrefab, Vector3.zero, Quaternion.identity);
-		defaultSprite = cursor.GetComponent<SpriteRenderer> ().sprite;
+		cursor.name = "CursorDefault";
+
 		cursorHeight = 1;
 	}
 

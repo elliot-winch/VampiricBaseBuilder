@@ -3,6 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class InstalledObject {
+
+	/*
+	 * public enum Material
+	{
+		Mud,
+		Wood,
+		Stone,
+		Brick
+	}
+	 */ 
 	
 	string name;
 	int id;
@@ -25,7 +35,7 @@ public class InstalledObject {
 	InstalledObjectInteraction interaction;
 
 	Func<Tile, bool> placementValidation;
-	JobList.StandardJobs onJobComplete;
+	JobList.CombinedJobs onJobComplete;
 
 	InstalledObjectPossibleJobs possibleJobs;
 
@@ -79,7 +89,7 @@ public class InstalledObject {
 		}
 	}
 
-	public JobList.StandardJobs OnJobComplete {
+	public JobList.CombinedJobs OnJobComplete {
 		get {
 			return onJobComplete;
 		}
@@ -98,7 +108,7 @@ public class InstalledObject {
 	}
 
 	public InstalledObject (int ID, string name, Func<Tile, bool> validation, 
-		JobList.StandardJobs onJobComplete, 
+		JobList.CombinedJobs onJobComplete, 
 		bool canMoveThrough = false, float moveCost=Mathf.Infinity){
 
 		this.id = ID;
@@ -110,11 +120,11 @@ public class InstalledObject {
 		this.moveCost = moveCost;
 
 		this.relativeTiles = new int[][]{ new int[]{ 0, 0 } };
-		this.height = height;
+		this.height = 1;
 	}
 
 	public InstalledObject (int ID, string name, Func<Tile, bool> validation, 
-		JobList.StandardJobs onJobComplete, int width, int height, 
+		JobList.CombinedJobs onJobComplete, int width, int height, 
 		bool canMoveThrough = false, float moveCost=Mathf.Infinity) 
 		: this(ID, name, validation, onJobComplete, canMoveThrough, moveCost){
 

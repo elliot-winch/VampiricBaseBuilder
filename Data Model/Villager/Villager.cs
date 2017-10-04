@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Villager {
+public class Villager : IJobPassable {
 
 	static float RecalcPathCost = 100f;
 
@@ -24,15 +24,25 @@ public class Villager {
 	float JobWaitTime;
 	Tile adjacentJobTile;
 
+	VillagerInventory inv;
+
 	public float X {
 		get {
-			return Mathf.Lerp (currentTile.X, nextTile.X, movePercentage);
+			if (nextTile == null) {
+				return currentTile.X;
+			} else {
+				return Mathf.Lerp (currentTile.X, nextTile.X, movePercentage);
+			}
 		}
 	}
 
 	public float Y {
 		get { 
-			return Mathf.Lerp (currentTile.Y, nextTile.Y, movePercentage); 
+			if (nextTile == null) {
+				return currentTile.Y;
+			} else {
+				return Mathf.Lerp (currentTile.Y, nextTile.Y, movePercentage); 
+			}
 		}
 	}
 
@@ -61,6 +71,10 @@ public class Villager {
 
 			if (currentTile.Installed != null && currentTile.Installed.Interaction != null) {
 				currentTile.Installed.Interaction.Interact (currentTile);
+			}
+
+			if (onPositionChanged != null) {
+				onPositionChanged (this);
 			}
 		}
 	}
@@ -92,8 +106,14 @@ public class Villager {
 		}
 	}
 
+	public VillagerInventory Inventory {
+		get {
+			return inv;
+		}
+	}
+
 	public void Start(){
-		//Currently empty
+		inv = new VillagerInventory ();
 	}
 
 	public void Update(float time){
@@ -102,7 +122,6 @@ public class Villager {
 		UpdateMovement (time);
 	}
 
-	//Movement - Villagers can open and close doors, but monsters should not be able to
 	void UpdateMovement(float time){
 		if (currentPath != null) {
 
@@ -134,6 +153,7 @@ public class Villager {
 			movePercentage += (speed * time) / (distCurrNext * CurrentTile.MoveCost);
 
 			onPositionChanged (this);
+
 		}
 	}
 		
@@ -142,11 +162,7 @@ public class Villager {
 			Debug.Log ("Trying to set dest to null.");
 			//It's probably nearest neighbour
 		}
-
-		if (dest.CanMoveThrough == false) {
-			SetDest (dest.NearestNeighbourTo (dest.X, dest.Y));
-		}
-
+			
 		currentPath = new Path (MapController.Instance.Map, CurrentTile, dest, true);
 
 		if (currentPath.IsNextTile()) {
@@ -185,7 +201,7 @@ public class Villager {
 			if (CurrentTile.Equals(this.adjacentJobTile)) {
 				//Job is performed regardless of outcome here
 				if (this.CurrentJob.PerformJob (time)) {
-					this.CurrentJob.OnCompleteJob (this.CurrentJob.Tile);
+					this.CurrentJob.OnCompleteJob (this.CurrentJob.Tile, this);
 					this.CurrentJob = null;
 					this.adjacentJobTile = null;
 				} 
@@ -194,6 +210,7 @@ public class Villager {
 				
 				//If not in range and not travelling, start to travel
 				if (currentPath == null) {
+					Debug.Log (this.CurrentJob.Tile);
 					Tile dest = this.CurrentJob.Tile.NearestNeighbourTo (this.CurrentTile.X , this.CurrentTile.Y);
 					SetDest (dest);
 					this.adjacentJobTile = dest;
