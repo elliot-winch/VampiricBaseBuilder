@@ -4,13 +4,17 @@ using UnityEngine;
 
 public static class JobList  {
 
-	public enum CombinedJobs
+	public enum Jobs
 	{
-		//Idle,
+		Idle,
 		//Sleep,
-		StandardInstall,
+		PickUp,
+		PlaceLoose,
+		StandardInstallBegin,
+		StandardInstallEnd,
 		Lock,
 		Unlock,
+		RemoveInstalled
 	}
 
 	static List<Action<Tile, Villager>> jobList;
@@ -26,56 +30,109 @@ public static class JobList  {
 		//jobsList is just jobs on tiles atm
 		jobList = new List<Action<Tile, Villager>> ();
 
-		jobList.Add (New);
-		jobList [(int)CombinedJobs.StandardInstall] += MakeNewGraphicalObject;
-		jobList [(int)CombinedJobs.StandardInstall] += MoveVillagersOutOfWay;
 
 		jobList.Add (New);
-		jobList [(int)CombinedJobs.Lock] += MoveVillagersOutOfWay;
-		jobList [(int)CombinedJobs.Lock] += ToggleMoveThrough;
-		jobList [(int)CombinedJobs.Lock] += (Tile tile, Villager v) => {
+		jobList [(int)Jobs.Idle] +=
+			(Tile tile, Villager v) => 
+		{
+			//Idle or wandering code, but not for the end of the job
+		};
+
+
+		jobList.Add (New);
+		jobList [(int)Jobs.PickUp] += 
+			(Tile tile, Villager vil) => 
+		{
+			vil.Inventory.Carrying = tile.Loose;
+			tile.Loose = null;
+				
+			Tile closestAvailableToPlace = InventoryManager.Instance.ClosestAvailableTile(vil.CurrentTile);
+
+			if(closestAvailableToPlace != null){
+				
+				JobController.Instance.AddJob(1f /* FIXME */, new Job(closestAvailableToPlace, 
+					(Tile t, Villager v) => {
+							PlaceLoose(closestAvailableToPlace, v);
+					}), 
+					vil);
+			}
+		};
+
+		jobList.Add (New);
+		jobList [(int)Jobs.PlaceLoose] += PlaceLoose;
+
+		jobList.Add (New);
+		jobList [(int)Jobs.StandardInstallBegin] += MoveVillagersOutOfWay;
+
+		jobList.Add (New);
+		jobList [(int)Jobs.StandardInstallEnd] += MakeNewGraphicalObject;
+
+		jobList.Add (New);
+		jobList [(int)Jobs.Lock] += MoveVillagersOutOfWay;//FIXME
+		jobList [(int)Jobs.Lock] += ToggleMoveThrough;
+		jobList [(int)Jobs.Lock] += (Tile tile, Villager v) => {
 			AddGraphic (tile, v, ExtraGraphicalElementHolder.Elements [0]);
 		};
-		jobList [(int)CombinedJobs.Lock] += (Tile tile, Villager v) => {
-			SetActivePossibleJob (tile, v, (int)CombinedJobs.Lock, false);
+		jobList [(int)Jobs.Lock] += (Tile tile, Villager v) => {
+			SetActivePossibleJob (tile, v, (int)Jobs.Lock, false);
 		};
-		jobList [(int)CombinedJobs.Lock] += (Tile tile, Villager v) => {
-			SetActivePossibleJob (tile, v, (int)CombinedJobs.Unlock, true);
+		jobList [(int)Jobs.Lock] += (Tile tile, Villager v) => {
+			SetActivePossibleJob (tile, v, (int)Jobs.Unlock, true);
 		};
 
 		jobList.Add (New);
-		jobList [(int)CombinedJobs.Unlock] += ToggleMoveThrough;
-		jobList [(int)CombinedJobs.Unlock] += RemoveGraphic;
-		jobList [(int)CombinedJobs.Unlock] += (Tile tile, Villager v) => {
-			SetActivePossibleJob (tile, v, (int)CombinedJobs.Unlock, false);
+		jobList [(int)Jobs.Unlock] += ToggleMoveThrough;
+		jobList [(int)Jobs.Unlock] += RemoveGraphic;
+		jobList [(int)Jobs.Unlock] += (Tile tile, Villager v) => {
+			SetActivePossibleJob (tile, v, (int)Jobs.Unlock, false);
 		};
-		jobList [(int)CombinedJobs.Unlock] += (Tile tile, Villager v) => {
+		jobList [(int)Jobs.Unlock] += (Tile tile, Villager v) => {
 			SetActivePossibleJob (
-				tile, v, (int)CombinedJobs.Lock, true);
+				tile, v, (int)Jobs.Lock, true);
 		};
 
+		jobList.Add (New);
+		jobList [(int)Jobs.RemoveInstalled] += RemoveGraphic;
+		jobList [(int)Jobs.RemoveInstalled] += (Tile t, Villager v) => {
+			InstalledObject obj = t.Installed;
+			Debug.Log(obj.Name);
+			MapController.Instance.DestroyObjectGraphic(t.Installed);
+		}; 
+
+		//End of init
+		for (int a = 0; a < jobList.Count; a++) {
+			jobList[a] += (tile, villager) => {
+				JobController.Instance.RemoveJob (tile);
+			};
+		}
 	}
 
 	static void New(Tile t, Villager v){
-		//This method is to replace new Action<Tile>(), which for some unknown reason returned an error.
+		//This method is to replace new Action<Tile, Villager>(), which for some unknown reason returned an error.
+	}
+
+
+	static void SetActivePossibleJob(Tile t, Villager v, int jobID, bool b){
+		t.Installed.PossibleJobs.SetPossibleJobActive (jobID, b);
 	}
 
 	static void MakeNewGraphicalObject(Tile t , Villager v){
-		MapController.Instance.CreateObject (t, t.Planned, false);
+		if (t.OccupyingVillagers.Count <= 0) {
+			MapController.Instance.CreateObject (t, t.Planned.ID);
+		} 
 	}
 
 	static void MoveVillagersOutOfWay(Tile baseTile , Villager v){
 		//MoveVillagersOutOfWay must come after making a new graphical object, else tile.Installed == null
-		int[][] relativeTiles = baseTile.Installed.RelativeTiles;
+		List<Tile> tiles = baseTile.Planned.Tiles;
 
-		for (int i = 0; i < relativeTiles.Length; i++) {
-			Debug.Log (relativeTiles [i] [0]);
-			Tile t = MapController.Instance.GetTileAtWorldPos (baseTile.X + relativeTiles [i] [0], baseTile.Y + relativeTiles [i] [1]);
+		for (int i = 0; i < tiles.Count; i++) {
+			if (tiles[i].OccupyingVillagers.Count > 0 && !tiles[i].Planned.CanMoveThrough) {
+				Debug.Log ("Villager moved from " + tiles[i].GetPosition () + " to " +  tiles[i].NearestNeighbourTo (tiles[i].X, tiles[i].Y).GetPosition());
 
-			if (t.OccupyingVillager != null && !t.Planned.CanMoveThrough) {
-				Tile occupied = t.OccupyingVillager.CurrentTile;
-				Debug.Log ("Villager moved from " + occupied.GetPosition () + " to " +  occupied.NearestNeighbourTo (occupied.X, occupied.Y).GetPosition());
-				t.OccupyingVillager.CurrentTile = occupied.NearestNeighbourTo (occupied.X, occupied.Y);
+				foreach (Villager vil in tiles[i].OccupyingVillagers) {
+					vil.CurrentTile = tiles[i].NearestNeighbourTo (tiles[i].X, tiles[i].Y);
+				}
 			} 
 		}
 	}
@@ -101,15 +158,29 @@ public static class JobList  {
 		}
 	}
 
-	static void SetActivePossibleJob(Tile t, Villager v, int jobID, bool b){
-		t.Installed.PossibleJobs.SetPossibleJobActive (jobID, b);
+	static void PlaceLoose(Tile t, Villager v){
+		if(v.Inventory.Carrying != null){
+			
+			v.Inventory.Carrying.CurrentTile = t;
+			//v.Inv.Car is set to null by the above setter
+
+			if (t.Installed.Name == "Stock Pile") { //FIXME
+				ResourceManager.Instance.ChangeVillageResourceVal((int)v.Inventory.Carrying.Contents.Type, v.Inventory.Carrying.Contents.Amount);
+			}
+		}
 	}
 
-	public static void PickUpObject(Tile t, Villager v, LooseObject l){
-		
+	/// ///////////
+
+	public static void MakeTileStockPile(Tile t, Villager v){
+		InventoryManager.Instance.AddSlot (t);
 	}
 
-	public static void PutDownObject(Tile t, Villager v){
-
-	}
+//	public static void PickUpObject(Tile t, Villager v, LooseObject l){
+//		
+//	}
+//
+//	public static void PutDownObject(Tile t, Villager v){
+//
+//	}
 }

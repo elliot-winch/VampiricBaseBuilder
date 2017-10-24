@@ -41,18 +41,16 @@ public class BuildingManager : MonoBehaviour {
 		_instance = this;
 
 		//Move this?
-		InstalledObjectHolder.Init ();
-		LooseObjectFactory.Init ();
-		TileTypeHolder.Init ();
-		ExtraGraphicalElementHolder.Init ();
+
 
 		SetMode ((int)BuildModes.None);
 	}
 
 	//Set Mode
-	public enum BuildModes{ None, DeleteAll, DeleteInstalled, BuildFloor, BuildMultiple, BuildSingle}
+	public enum BuildModes{ None, RemoveInstalled, DeletePlanned, BuildFloor, BuildMultiple, BuildSingle, InstallImmediate}
+	//FIXME reorder
 
-	InstalledObject currentInstalledObj;
+	int currentInstalledObjID;
 
 	public void SetMode(int mode){
 
@@ -62,22 +60,29 @@ public class BuildingManager : MonoBehaviour {
 		case BuildModes.None:
 			buildMode = false;
 			break;
-		case BuildModes.DeleteAll:
+		case BuildModes.RemoveInstalled:
 			buildMode = true;
 			dragMode = true;
 			build = (tile) => { 
-				tile.ResetTile();
-				tile.Planned = null;
+				if(tile.Installed != null){
+					//Spawns a picture to mark deletion
+					MapController.Instance.AddExtraGraphicalElement(tile, ExtraGraphicalElementHolder.Elements[1]);
+					//RemoveInstalled job also removes deletion graphic
+					JobController.Instance.AddJob(1f /*FIXME*/, new Job(tile, JobList.JobFunctions[(int)JobList.Jobs.RemoveInstalled]));
+				}
 				};
-			ChangeObj (-1);
+			ChangeObjID (-1);
 			break;
-		case BuildModes.DeleteInstalled:
+		case BuildModes.DeletePlanned:
 			buildMode = true;
 			dragMode = true;
 			build = (tile) => {
-				tile.Planned = null;
+				if(tile.Planned != null){
+					MapController.Instance.DestroyPlannedObjectGraphic(tile.Planned);
+					JobController.Instance.CancelJob(tile);
+				}
 			};
-			ChangeObj (-1);
+			ChangeObjID (-1);
 			break;
 		case BuildModes.BuildFloor:
 			buildMode = true;
@@ -85,7 +90,7 @@ public class BuildingManager : MonoBehaviour {
 			build = (tile /*, Material*/) => {
 				tile.Type = Tile.TileType.WoodFloor;
 			};
-			ChangeObj (-1);
+			ChangeObjID (-1);
 
 			break;
 		case BuildModes.BuildMultiple:
@@ -93,7 +98,9 @@ public class BuildingManager : MonoBehaviour {
 			dragMode = true;
 			build = (tile /*, Material*/) => 
 			{ 
-				MapController.Instance.CreateObject(tile, currentInstalledObj, true);
+				if(currentInstalledObjID >= 0){
+					MapController.Instance.CreatePlannedObject(tile, currentInstalledObjID);
+				}
 			};
 			break;
 		case BuildModes.BuildSingle:
@@ -101,25 +108,34 @@ public class BuildingManager : MonoBehaviour {
 			dragMode = false;
 			build = (tile /*, Material*/) => 
 			{ 
-				MapController.Instance.CreateObject(tile, currentInstalledObj, true);
+				if(currentInstalledObjID >= 0){
+					MapController.Instance.CreatePlannedObject(tile, currentInstalledObjID);
+				}
+			};
+			break;
+
+		case BuildModes.InstallImmediate:
+			buildMode = true;
+			dragMode = true;
+			build = (tile) => {
+				if (currentInstalledObjID >= 0) {
+					MapController.Instance.CreateObject (tile, currentInstalledObjID);
+				}
 			};
 			break;
 		default:
 			Debug.LogError ("Button needs setting!");
 			break;
 		}
+
 	}
 
-	public void ChangeObj(int objID){
-		if (objID == -1) {
-			currentInstalledObj = null;
-		} else if (objID >= InstalledObjectHolder.MaxObjID || objID < 0 || InstalledObjectHolder.Installables[objID] == null) {
-			throw new InvalidOperationException ("No object associated with this ID");
+	public void ChangeObjID(int objID){
+		 if (objID >= InstalledObjectHolder.MaxObjID || objID < 0) {
+			MouseManagerBuildMode.Instance.DefaultCursor();
 		} else {
-			currentInstalledObj = InstalledObjectHolder.Installables[objID];
+			currentInstalledObjID = objID;
+			MouseManagerBuildMode.Instance.SetCursor (InstalledObjectHolder.GetObjInfo(objID), InstalledObjectHolder.GetSpriteHolder(objID));
 		}
-
-		MouseManagerBuildMode.Instance.SetCursor (currentInstalledObj);
-
 	}
 }

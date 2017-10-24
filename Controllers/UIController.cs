@@ -15,6 +15,8 @@ public class UIController : MonoBehaviour {
 	public GameObject jobListPanelPrefab;
 	public GameObject buttonPrefab;
 
+	public Text tileInfo;
+
 	GameObject jobListPanel;
 
 	public static UIController Instance {
@@ -43,38 +45,68 @@ public class UIController : MonoBehaviour {
 		rt.position = t.GetPosition () + offset;
 		//Position is bottom right corner of tile
 
-		List<PossibleJob> tilePosJobs = t.Installed.PossibleJobs.ListJobs;
+		List<PossibleJob> tilePosJobs = null;
 
-		int activeCount = 0;
-		for (int counter = 0; counter < tilePosJobs.Count; counter++) {
-			if (tilePosJobs [counter].active) {
-
-				GameObject button = Instantiate (buttonPrefab, jobListPanel.transform);
-
-				button.GetComponentInChildren<Text> ().text = ((JobList.CombinedJobs)tilePosJobs[counter].possibleJobID).ToString();
-				int value = tilePosJobs [counter].possibleJobID;
-
-				button.GetComponent<Button>().onClick.AddListener(
-					() => 
-					{				
-						JobController.Instance.AddJob (Time.realtimeSinceStartup, new Job(t, JobList.JobFunctions[value]));
-						CloseJobPanel();
-					}
-				);
-
-
-				activeCount++;
-			}
+		//More extensive checks are done before calling tis function
+		if (t.Loose != null && t.Loose.PossibleJobs != null) {
+			tilePosJobs = t.Loose.PossibleJobs.ListJobs;
+		} else if (t.Installed != null && t.Installed.PossibleJobs != null){
+			tilePosJobs = t.Installed.PossibleJobs.ListJobs;
 		}
-			
-		rt.sizeDelta = new Vector2 (buttonWidth, buttonHeight * activeCount);
-		jobListPanel.SetActive (true);
 
+		if (tilePosJobs == null) {
+			return;
+		} else {
+
+			int activeCount = 0;
+			for (int counter = 0; counter < tilePosJobs.Count; counter++) {
+				if (tilePosJobs [counter].active) {
+
+					GameObject button = Instantiate (buttonPrefab, jobListPanel.transform);
+
+					button.GetComponentInChildren<Text> ().text = ((JobList.Jobs)tilePosJobs [counter].possibleJobID).ToString ();
+					int value = tilePosJobs [counter].possibleJobID;
+
+					button.GetComponent<Button> ().onClick.AddListener (
+						() => {				
+							JobController.Instance.AddJob (Time.realtimeSinceStartup, new Job (t, JobList.JobFunctions [value]));
+							CloseJobPanel ();
+						}
+					);
+
+
+					activeCount++;
+				}
+			}
+
+			rt.sizeDelta = new Vector2 (buttonWidth, buttonHeight * activeCount);
+			jobListPanel.SetActive (true);
+		}
 	}
 
 	public void CloseJobPanel(){
 		if (jobListPanel != null) {
 			Destroy (jobListPanel);
+		}
+	}
+
+	void Update(){
+		Tile t = MapController.Instance.GetTileAtWorldPos (Camera.main.ScreenToWorldPoint(Input.mousePosition));
+
+		if (t != null) {
+			tileInfo.text = "Planned: ";
+				if(t.Planned != null){
+					tileInfo.text += t.Planned.Name;
+				} else {
+					tileInfo.text += "Null";
+				}
+			tileInfo.text += "\nInstalled: ";
+
+			if(t.Installed != null){
+				tileInfo.text += t.Installed.Name;
+			} else {
+				tileInfo.text += "Null";
+			}
 		}
 	}
 }

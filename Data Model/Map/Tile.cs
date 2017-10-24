@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Tile : INode, IJobPassable{
@@ -14,7 +15,7 @@ public class Tile : INode, IJobPassable{
 	InstalledObject planned;
 	InstalledObject installed;
 
-	Villager occupyingVillager;
+	List<Villager> occupyingVillagers;
 
 	Map map;
 	int x;
@@ -90,12 +91,18 @@ public class Tile : INode, IJobPassable{
 			return installed;
 		}
 		set {
-			if ((installed == null && value != null) /*|| (installed != null && value == null)*/) {
+			if ((installed == null && value != null) ) {
 				planned = null;
 				installed = value;
 
-				this.moveCost = value.GetMoveCost();
+				this.moveCost = value.GetMoveCost ();
 				this.CanMoveThrough = value.CanMoveThrough;
+			} else if(installed != null && value == null){
+				installed = null;
+
+				//this.moveCost = tile.movecost
+				//this.CanMoveThrough = tile.CANMOVETHOURHG
+				this.CanMoveThrough = true;
 			} else {
 				if (value != null) {
 					Debug.Log ("Object already installed here");
@@ -115,12 +122,12 @@ public class Tile : INode, IJobPassable{
 
 	public bool CanMoveThrough { get; set; }
 
-	public Villager OccupyingVillager {
+	public List<Villager> OccupyingVillagers {
 		get {
-			return occupyingVillager;
+			return occupyingVillagers;
 		}
 		set {
-			occupyingVillager = value;
+			occupyingVillagers = value;
 		}
 	}
 		
@@ -134,6 +141,8 @@ public class Tile : INode, IJobPassable{
 
 		this.moveCost = moveCost;
 		this.CanMoveThrough = true; //FIXME tileType.canMoveThrough
+
+		this.OccupyingVillagers = new List<Villager> ();
 	}
 
 	public void RegisterTileTypeChangeCallback(Action<Tile> callback){
@@ -157,6 +166,14 @@ public class Tile : INode, IJobPassable{
 		neighbours[7] = map.GetTileAt (this.X - 1, this.Y + 1);
 
 		return neighbours;
+	}
+
+	public Tile NearestNeighbourTo(){
+		return NearestNeighbourTo (this.X, this.Y);
+	}
+
+	public Tile NearestNeighbourTo(Tile t){
+		return NearestNeighbourTo (t.X, t.Y);
 	}
 
 	//For calculating best place to walk for job. Might return null

@@ -2,8 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Resource : ILooseObject {
+public class Resource {
 
+
+	public enum ResourceType{
+		Mud,
+		Wood,
+		Stone,
+		Bricks,
+		Wheat
+	}
+
+	ResourceType t;
 	int amount;
 
 	public int Amount {
@@ -17,19 +27,29 @@ public class Resource : ILooseObject {
 		}
 	}
 
-	public Resource(int amount){
-		this.Amount = amount;
+	public ResourceType Type {
+		get {
+			return t;
+		}
 	}
 
-	public Resource(){
+	public Resource(int amount, ResourceType t){
+		this.Amount = amount;
+		this.t = t;
+	}
+
+	public Resource( ResourceType t){
 		this.Amount = 0;
+		this.t = t;
 	}
 
 	public void Combine(Resource r){
-		if (r.Amount > 0) {
-			this.Amount += r.Amount;
-			r.Amount = 0;
+		if (r.Type == this.t) {
+			if (r.Amount > 0) {
+				this.Amount += r.Amount;
+				r.Amount = 0;
 
+			}
 		}
 	}
 }

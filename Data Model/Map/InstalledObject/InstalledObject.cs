@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InstalledObject {
+public class InstalledObject{
 
 	/*
 	 * public enum Material
@@ -17,12 +17,26 @@ public class InstalledObject {
 	string name;
 	int id;
 
-	int[][] relativeTiles;
 	int height;
+	int width;
 
 	public int Height {
 		get {
 			return height;
+		}
+	}
+
+	public int Width {
+		get {
+			return width;
+		}
+	}
+
+	List<Tile> tiles;
+
+	public List<Tile> Tiles{
+		get {
+			return tiles;
 		}
 	}
 
@@ -35,9 +49,10 @@ public class InstalledObject {
 	InstalledObjectInteraction interaction;
 
 	Func<Tile, bool> placementValidation;
-	JobList.CombinedJobs onJobComplete;
+	Action<Tile, Villager> onInstallComplete;
+	Action<Tile, Villager> onPlaced;
 
-	InstalledObjectPossibleJobs possibleJobs;
+	ObjectPossibleJobs possibleJobs;
 
 	InstalledObjectSpawnAdditional spawnAdd;
 
@@ -50,13 +65,6 @@ public class InstalledObject {
 	public int ID {
 		get {
 			return id;
-		}
-	}
-
-
-	public int[][] RelativeTiles {
-		get {
-			return relativeTiles;
 		}
 	}
 
@@ -89,13 +97,19 @@ public class InstalledObject {
 		}
 	}
 
-	public JobList.CombinedJobs OnJobComplete {
+	public Action<Tile, Villager> OnInstalledComplete {
 		get {
-			return onJobComplete;
+			return onInstallComplete;
+		}
+	}
+
+	public Action<Tile, Villager> OnPlaced {
+		get {
+			return onPlaced;
 		}
 	}
     
-	public InstalledObjectPossibleJobs PossibleJobs {
+	public ObjectPossibleJobs PossibleJobs {
 		get {
 			return possibleJobs;
 		}
@@ -107,60 +121,73 @@ public class InstalledObject {
 		}
 	}
 
-	public InstalledObject (int ID, string name, Func<Tile, bool> validation, 
-		JobList.CombinedJobs onJobComplete, 
-		bool canMoveThrough = false, float moveCost=Mathf.Infinity){
+	public InstalledObject(InstalledObjectInfo info, Tile baseTile){
+		this.id = info.ID;
+		this.name = info.Name;
 
-		this.id = ID;
-		this.name = name;
+		this.placementValidation = info.PlacementValidation;
+		this.onInstallComplete = info.OnInstallComplete;
+		this.onPlaced = info.OnPlaced;
+		this.canMoveThrough = info.CanMoveThrough;
+		this.moveCost = info.MoveCost;
 
-		this.placementValidation = validation;
-		this.onJobComplete = onJobComplete;
-		this.canMoveThrough = canMoveThrough;
-		this.moveCost = moveCost;
+		this.height = info.Height;
+		this.width = info.Width;
 
-		this.relativeTiles = new int[][]{ new int[]{ 0, 0 } };
-		this.height = 1;
+		this.tiles = new List<Tile> ();
+
+		for (int i = 0; i < this.Width; i++) {
+			for (int j = 0; j < this.Height; j++) {
+				this.tiles.Add(MapController.Instance.GetTileAtWorldPos(baseTile.X + i, baseTile.Y + j));
+			}
+		}
+
+		Debug.Log (tiles.Count);
+		foreach (Tile t in tiles) {
+			Debug.Log (t.GetPosition ());
+		}
 	}
 
-	public InstalledObject (int ID, string name, Func<Tile, bool> validation, 
-		JobList.CombinedJobs onJobComplete, int width, int height, 
-		bool canMoveThrough = false, float moveCost=Mathf.Infinity) 
-		: this(ID, name, validation, onJobComplete, canMoveThrough, moveCost){
-
-		SetMultiTiles (width, height);
-		this.height = height;
-	}
+//	public InstalledObject (int ID, string name, Func<Tile, bool> validation, 
+//		Action<Tile, Villager> onJobComplete, Action<Tile, Villager> onPlaced = null,
+//		bool canMoveThrough = false, float moveCost=Mathf.Infinity){
+//
+//		this.id = ID;
+//		this.name = name;
+//
+//		this.placementValidation = validation;
+//		this.onInstallComplete = onJobComplete;
+//		this.onPlaced = onPlaced;
+//		this.canMoveThrough = canMoveThrough;
+//		this.moveCost = moveCost;
+//
+//		this.relativeTiles = new int[][]{ new int[]{ 0, 0 } };
+//		this.height = 1;
+//	}
+//
+//	public InstalledObject (int ID, string name, Func<Tile, bool> validation, 
+//		Action<Tile, Villager> onJobComplete, Action<Tile, Villager> onPlaced, int width, int height, 
+//		bool canMoveThrough = false, float moveCost=Mathf.Infinity) 
+//		: this(ID, name, validation, onJobComplete, onPlaced, canMoveThrough, moveCost){
+//
+//		SetMultiTiles (width, height);
+//		this.height = height;
+//	}
 
 	public bool StandardValidation(Tile t){
 		return true;
 	}
 
-	public void InitInteraction(){
-		this.interaction = new InstalledObjectInteraction ();
+	public void InitInteraction(InstalledObjectInteractionInfo info){
+		this.interaction = new InstalledObjectInteraction (info.PrevInteraction, info.OnInteraction);
+
 	}
 
-	public void InitPossibleJobs(){
-		this.possibleJobs = new InstalledObjectPossibleJobs ();
+	public void InitPossibleJobs(ObjectPossibleJobsInfo info){
+		this.possibleJobs = new ObjectPossibleJobs(info.PossibleJobs);
 	}
 
-	public void InitSpawnAdditional(){
-		this.spawnAdd = new InstalledObjectSpawnAdditional ();
-	}
-
-	public void SetMultiTiles(int[][] coords){
-		//Specialist setting of tiles
-		this.relativeTiles = coords;
-	}
-
-	public void SetMultiTiles(int width, int height){
-		this.relativeTiles = new int[width * height][];
-
-		int counter = 0;
-		for (int i = 0; i < width; i++) {
-			for (int j = 0; j < height; j++) {
-				relativeTiles [counter++] = new int[]{ i, j };
-			}
-		}
+	public void InitSpawnAdditional(InstalledObjectSpawnAdditionalInfo info){
+		this.spawnAdd = new InstalledObjectSpawnAdditional(info.Additions);
 	}
 }

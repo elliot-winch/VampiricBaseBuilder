@@ -12,8 +12,20 @@ public class VillagerManager : MonoBehaviour, IUpdateableWithTime {
 		}
 	}
 
-	List<Villager> villagers;
-	//do we need to link villager to it graphical representation in a dictionary?
+	Dictionary<Villager, GameObject> villagers;
+
+	public Villager[] Villagers {
+		get {
+			Villager[] vils = new Villager[villagers.Count];
+			villagers.Keys.CopyTo(vils, 0); 
+			return vils;
+		}
+	}
+
+	public Dictionary<Villager, GameObject> VillagersWithObjects{
+		get { return villagers; }
+	}
+
 
 	void Start(){
 		if (_instance != null) {
@@ -22,25 +34,30 @@ public class VillagerManager : MonoBehaviour, IUpdateableWithTime {
 
 		_instance = this;
 
-		villagers = new List<Villager> ();
+		villagers = new Dictionary<Villager, GameObject>();
 
 		//FIXME: testing only
 
-		Villager v = new Villager (MapController.Instance.Map.GetTileAt (0, 0), "Steve", 10f);
-		Villager v1 = new Villager (MapController.Instance.Map.GetTileAt (1, 1), "Rachel", 20f);
 
-		villagers.Add (v);
-		villagers.Add (v1);
+		for(int i = 0; i < 2; i++) {
+			Villager vil = new Villager (MapController.Instance.Map.GetTileAt (i, 2*i), "Steve_" + i, 10f);
 
-
-		foreach (Villager vil in villagers) {
 			vil.Start();
 			CreateVillagerObject(vil);
+
+			vil.Inventory.RegisterOnCarryingChangedCallback (
+				() => {
+					if(vil.Equals(UIControllerBuildMode.Instance.UIActiveVillager)){
+						UIControllerBuildMode.Instance.UpdateAllUI(vil);
+					}
+			});
+
+
 		}
 	}
 
 	public void UpdateWithTime(float time){
-		foreach (Villager vil in villagers) {
+		foreach (Villager vil in this.Villagers) {
 			vil.Update (time);
 		}
 	}
@@ -61,7 +78,12 @@ public class VillagerManager : MonoBehaviour, IUpdateableWithTime {
 		SpriteRenderer vil_go_sr = vil_go.AddComponent<SpriteRenderer> ();
 		vil_go_sr.sprite = Resources.LoadAll<Sprite>("Sprites/spriteSheet1")[17];
 		vil_go_sr.sortingLayerName = "Creatures";
-		vil_go_sr.material = Resources.Load<Material> ("Materials/Lit2DMat");
+		vil_go_sr.material = Resources.Load<Material> ("Materials/Lit2DMatOutline");
+
+		vil_go.AddComponent<SpriteOutline> ().color = Color.red;
+		vil_go.GetComponent<SpriteOutline> ().enabled = false;
+
+		villagers.Add (v, vil_go);
 
 		v.RegisterPositionChangedCallback ( (villager) => { ChangePosition(villager, vil_go); } );
 

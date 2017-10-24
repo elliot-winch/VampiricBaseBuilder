@@ -8,6 +8,16 @@ public class InstalledObjectInteraction {
 	Action<Tile> prevInteraction; //How all entities interact with this installed object when they've just stepped off it
 	Action<Tile> onInteraction;  //How all entities interact with this installed object 
 
+	public InstalledObjectInteraction(){
+		prevInteraction = null;
+		onInteraction = null;
+	}
+
+	public InstalledObjectInteraction(Action<Tile> prev, Action<Tile> onI){
+		this.prevInteraction = prev;
+		this.onInteraction = onI;
+	}
+
 	//When a villager just finished moving through this tile, what happens?
 	public void RegisterPrevInteractionCallback(Action<Tile> callback){
 		prevInteraction += callback;

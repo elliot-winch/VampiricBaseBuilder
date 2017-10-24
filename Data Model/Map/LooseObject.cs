@@ -14,10 +14,12 @@ public class LooseObject {
 //	Func<Tile, bool> placementValidation;
 	//Do different looseobjects need different placement validations? The answer is yes, but not right now
 
-	ILooseObject contents;
-	//Might be an installed object or resource
+	Resource contents;
+	//Might be an installed object or resource FIXME
 
 	Action<Tile> placed;
+
+	ObjectPossibleJobs possibleJobs;
 
 	public string Name {
 		get {
@@ -36,9 +38,8 @@ public class LooseObject {
 			return currentTile;
 		}
 		set {
-			currentTile = value;
-
 			if (value != null) {
+				currentTile = value;
 				value.Loose = this;
 			}
 		}
@@ -52,24 +53,24 @@ public class LooseObject {
 			pickUp = value;
 
 			if (pickUp) {
-				JobController.Instance.AddJob (Time.realtimeSinceStartup, new Job (currentTile,
-					(Tile tile, Villager v) =>
-					{
-						v.Inventory.Carrying = tile.Loose;
-						tile.Loose = null;
-					}
-				));
+				JobController.Instance.AddJob (1f, new Job(CurrentTile, JobList.JobFunctions[(int)JobList.Jobs.PickUp]));
 			}
 		}
 	}
 
-	public ILooseObject Contents {
+	public ObjectPossibleJobs PossibleJobs {
+		get {
+			return possibleJobs;
+		}
+	}
+
+	public Resource Contents {
 		get {
 			return contents;
 		}
 	}
 
-	public LooseObject(string name, int id, /*Func<Tile, bool> placementValidation,*/ ILooseObject contents, bool pickUp, Tile t){
+	public LooseObject(string name, int id, /*Func<Tile, bool> placementValidation,*/ Resource contents, bool pickUp, Tile t){
 		this.name = name;
 		this.id = id;
 		//this.placementValidation = placementValidation;
@@ -79,6 +80,10 @@ public class LooseObject {
 		this.CurrentTile = t;
 		this.PickUp = pickUp;
 
+	}
+
+	public void InitPossibleJobs(){
+		this.possibleJobs = new ObjectPossibleJobs ();
 	}
 //
 //	public void RegisterPlacedCallback(Action<Tile> callback){

@@ -12,8 +12,7 @@ Feast / night mode
 
 World:
 Implement beds 
-Implement tables/chairs/food						<=== Next: chairs, tables, beds for eating / sleeping. Idle workers.
-Implement loose objects
+Implement tables/chairs/food							<=== Next: chairs, tables for eating / sleeping. 
 Implement random generation w/ biomes/micro-biomes
 Installed items that dont block paths use tiles movecost
 
@@ -24,6 +23,7 @@ Cancelling jobs -> with UI element
 Moving to higher priority jobs
 Delete installed 
 Flooring is job
+Fix priorities
 
 Villagers:
 Pathfinding: 

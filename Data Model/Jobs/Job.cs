@@ -13,9 +13,9 @@ public class Job {
 
 	Tile tile;
 
+	Action<Tile, Villager> onStartJob;
 	Action<Tile, Villager> onCompleteJob;
 
-	//float originalJobTime ???
 	float jobTime;
 
 	public Tile Tile {
@@ -25,6 +25,16 @@ public class Job {
 	}
 
 	public bool Active { get; set; }
+	bool started;
+	public bool Started { get { return started; } }
+
+	public Villager VillagerAssociated { get; set; } 
+
+	public Action<Tile, Villager> OnStartJob {
+		get {
+			return onStartJob;
+		}
+	}
 
 	public Action<Tile, Villager> OnCompleteJob {
 		get {
@@ -38,15 +48,19 @@ public class Job {
 		}
 	}
 
-	public Job(Tile tile, Action<Tile, Villager> job, float jobTime = 2f){
+	public Job(Tile tile, Action<Tile, Villager> start, Action<Tile, Villager> end, float jobTime = 2f){
 		this.Active = true;
 		this.tile = tile;
-		this.onCompleteJob = job;
+		this.onStartJob = start;
+		this.onCompleteJob = end;
 		this.jobTime = jobTime;
 	}
 
+	public Job(Tile tile, Action<Tile, Villager> end, float jobTime = 2f) : this(tile, null, end, jobTime){}
+
 	//Return true when complete
 	public bool PerformJob(float deltaTime){
+		
 		if ((jobTime -= deltaTime) <= 0) {
 			return true;
 		}

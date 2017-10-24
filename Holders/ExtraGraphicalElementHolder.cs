@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ExtraGraphicalElementHolder : MonoBehaviour {
 
-	static int numElements = 1;
+	static int numElements = 2;
 	static ExtraGraphicalElement[] elements;
 
 	public static ExtraGraphicalElement[] Elements {
@@ -18,6 +18,7 @@ public class ExtraGraphicalElementHolder : MonoBehaviour {
 		elements = new ExtraGraphicalElement[numElements];
 
 		elements [0] = new ExtraGraphicalElement ("Lock Symbol", Resources.Load <Sprite> ("Sprites/UI/lock"));
+		elements [1] = new ExtraGraphicalElement ("Deletion Marker", Resources.Load<Sprite> ("Sprites/UI/deletion"));
 	}
 
 	public ExtraGraphicalElement GetElement(int id){

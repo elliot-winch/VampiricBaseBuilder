@@ -15,13 +15,8 @@ public class Path  {
 		// A dictionary of all valid, walkable nodes.
 		Dictionary<Tile, PathNode<Tile>> nodes = map.Graph.Current;
 
-		if(endTile.CanMoveThrough == false) {
-			Debug.Log ("Tried to set path with dest in impassable tile");
-			endTile  = endTile.NearestNeighbourTo(endTile.X, endTile.Y);
-
-			if (endTile == null) {
-				throw new NullReferenceException("No path to location");
-			}
+		if(endTile == null || endTile.CanMoveThrough == false) {
+			throw new NullReferenceException("Destination is impassable");
 		}
 
 		if (startTile.CanMoveThrough == false) {

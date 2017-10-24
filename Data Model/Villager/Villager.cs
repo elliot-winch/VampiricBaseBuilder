@@ -20,11 +20,15 @@ public class Villager : IJobPassable {
 	Action<Villager> onPositionChanged;
 
 	//Jobs
+	PriorityQueue<float, Job> jobs;
 	public Job CurrentJob;
+	public bool AbleToWork; //Acts more like able to receive a new job
+
 	float JobWaitTime;
 	Tile adjacentJobTile;
 
 	VillagerInventory inv;
+	//FIXME put jobs into a signle class
 
 	public float X {
 		get {
@@ -60,14 +64,14 @@ public class Villager : IJobPassable {
 			}
 			//Prev tile
 			if (currentTile != null) {
-				currentTile.OccupyingVillager = null;
+				currentTile.OccupyingVillagers.Remove (this);
 				if (currentTile.Installed != null && CurrentTile.Installed.Interaction != null) {
 					currentTile.Installed.Interaction.PrevInteract (currentTile);
 				}
 			}
 			//New current tile
 			currentTile = value;
-			currentTile.OccupyingVillager = this;
+			currentTile.OccupyingVillagers.Add (this);
 
 			if (currentTile.Installed != null && currentTile.Installed.Interaction != null) {
 				currentTile.Installed.Interaction.Interact (currentTile);
@@ -85,9 +89,10 @@ public class Villager : IJobPassable {
 		}
 	}
 
-	public Villager(Tile currentTile){
-		this.CurrentTile = currentTile;
-		this.v_info = new VillagerInfo ("Something", 0f);
+	public PriorityQueue<float, Job> Jobs {
+		get {
+			return jobs;
+		}
 	}
 
 	public Villager(Tile currentTile, VillagerInfo info){
@@ -112,8 +117,13 @@ public class Villager : IJobPassable {
 		}
 	}
 
+
+	/// /////////
+
 	public void Start(){
 		inv = new VillagerInventory ();
+		jobs = new PriorityQueue<float, Job> ();
+		AbleToWork = true;
 	}
 
 	public void Update(float time){
@@ -123,6 +133,11 @@ public class Villager : IJobPassable {
 	}
 
 	void UpdateMovement(float time){
+		//I want to remove this but it is a temporary fix
+		if (CurrentTile.CanMoveThrough == false) {
+			this.CurrentTile = this.CurrentTile.NearestNeighbourTo ();
+		}
+
 		if (currentPath != null) {
 
 			//Reached nextTile
@@ -140,6 +155,10 @@ public class Villager : IJobPassable {
 				if (nextTile == null) {
 					destTile = null;
 					currentPath = null;
+
+					if (CurrentJob != null && CurrentJob.OnStartJob != null) {
+						CurrentJob.OnStartJob (CurrentJob.Tile, this);
+					}
 				}
 					
 				//If path has become impassable
@@ -191,12 +210,14 @@ public class Villager : IJobPassable {
 	void UpdateJob(float time){
 		//If no job is assigned, look for a job
 		if (this.CurrentJob == null) {
-			if (!JobController.Instance.JobQueue.IsEmpty) { //FIXME: loop through all queues in priortiy order
-				this.CurrentJob = JobController.Instance.JobQueue.DequeueValue ();
+			if (!this.jobs.IsEmpty) { 
+				this.CurrentJob = jobs.DequeueValue();
+			} else {
+				//IDLE as there are no jobs
+				this.CurrentJob = new Job (this.CurrentTile, JobList.JobFunctions[(int)JobList.Jobs.Idle], 5f);
+				this.adjacentJobTile = this.CurrentTile;
 			}
-
 		} else {
-			
 			//If standing on the right tile, do the job
 			if (CurrentTile.Equals(this.adjacentJobTile)) {
 				//Job is performed regardless of outcome here
@@ -205,19 +226,31 @@ public class Villager : IJobPassable {
 					this.CurrentJob = null;
 					this.adjacentJobTile = null;
 				} 
-
 			} else {
-				
 				//If not in range and not travelling, start to travel
 				if (currentPath == null) {
-					Debug.Log (this.CurrentJob.Tile);
 					Tile dest = this.CurrentJob.Tile.NearestNeighbourTo (this.CurrentTile.X , this.CurrentTile.Y);
 					SetDest (dest);
 					this.adjacentJobTile = dest;
 				}
-
 				//Else the villager is travelling but not close enough yet
 			}
+		}
+	}
+
+	public void AddJob(float priority, Job j){
+		if (AbleToWork && j != null) {
+			jobs.Enqueue (priority /*  time a multipler*/, j);
+		}
+	}
+
+	public void CancelJob(Job j){
+		Debug.Log ("Cancelling job");
+		if(j.Equals(CurrentJob)){
+			this.CurrentJob = null;
+			this.adjacentJobTile = null;
+		} else if(jobs.Contains(j)){
+			jobs.Cancel (j);
 		}
 	}
 }

@@ -13,7 +13,7 @@ public class MutExPanels : MonoBehaviour {
 	Display[] mutExObjs;
 
 	public int startEnabled = 0;
-	int currentEnabled;
+	int currentEnabled = -1;
 
 	void Start(){
 		mutExObjs = GetComponentsInChildren<Display> (true);
@@ -22,13 +22,25 @@ public class MutExPanels : MonoBehaviour {
 			d.SetActive (false);
 		}
 
-		mutExObjs [startEnabled].SetActive (true);
-		currentEnabled = startEnabled;
+		Switch (startEnabled);
 	}
 
 	public void Switch(int index){
-		mutExObjs [currentEnabled].SetActive (false);
-		mutExObjs [index].SetActive (true);
-		currentEnabled = index;
+		if (index < 0 || index >= mutExObjs.Length || index == currentEnabled) {
+			Off ();
+		} else {
+			if (currentEnabled >= 0 && currentEnabled < mutExObjs.Length) {
+				mutExObjs [currentEnabled].SetActive (false);
+			}
+			mutExObjs [index].SetActive (true);
+			currentEnabled = index;
+		}
+	}
+
+	public void Off(){
+		if (currentEnabled >= 0 && currentEnabled < mutExObjs.Length) {
+			mutExObjs [currentEnabled].SetActive (false);
+		}
+		currentEnabled = -1;
 	}
 }

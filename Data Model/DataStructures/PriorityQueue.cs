@@ -7,7 +7,9 @@ public class PriorityQueue<TPriority, TValue>
 	protected List<KeyValuePair<TPriority, TValue>> _baseHeap;
 	protected IComparer<TPriority> _comparer;
 
-	public PriorityQueue(): this(Comparer<TPriority>.Default){}        
+	public int Count{ get { return _baseHeap.Count; } }
+
+	public PriorityQueue(): this(Comparer<TPriority>.Default){}  
 
 	public PriorityQueue(IComparer<TPriority> comparer)
 	{
@@ -137,16 +139,26 @@ public class PriorityQueue<TPriority, TValue>
 	}
 
 	public bool Contains(TValue value){
-		if (value == null) {
-			return false;
-		}
+		return IsAt (value) >= 0;
+	}
 
-		foreach (KeyValuePair<TPriority, TValue> kvPair in _baseHeap) {
-			if(value.Equals(kvPair.Value)){
-				return true;
+	public int IsAt(TValue value){
+		for (int i = 0; i < _baseHeap.Count; i++) {
+			if(_baseHeap[i].Value.Equals(value)){
+				return i;
 			}
 		}
 
-		return false;
+		return -1;
+	}
+
+	public void Cancel(TValue t){
+		int index = this.IsAt (t);
+		if (index >= 0) {
+			_baseHeap.RemoveAt(index);
+
+			// heapify
+			HeapifyFromBeginningToEnd(index);
+		}
 	}
 }

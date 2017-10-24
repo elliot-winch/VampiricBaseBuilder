@@ -22,6 +22,10 @@ public class InstalledObjectSpawnAdditional {
 	public InstalledObjectSpawnAdditional(){
 		additions = new List<GameObject> ();
 	}
+
+	public InstalledObjectSpawnAdditional(List<GameObject> list){
+		additions = list;
+	}
 		
 	public void AddAdditional(int id){
 		if (id >= 0 && id < AdditionalsHolder.Instance.AllAdditionals.Length) {

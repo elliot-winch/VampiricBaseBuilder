@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InstalledObjectPossibleJobs  {
+public class ObjectPossibleJobs  {
 
 	//These are things villagers/the vampire can do to installed objects
 	List<PossibleJob> possibleJobs;
@@ -13,8 +13,12 @@ public class InstalledObjectPossibleJobs  {
 		}
 	}
 
-	public InstalledObjectPossibleJobs(){
+	public ObjectPossibleJobs(){
 		possibleJobs = new List<PossibleJob> ();
+	}
+
+	public ObjectPossibleJobs(List<PossibleJob> list){
+		possibleJobs = list;
 	}
 
 	public void AddPossibleJob(int jobID, bool t){
@@ -22,13 +26,7 @@ public class InstalledObjectPossibleJobs  {
 	}
 
 	public void SetPossibleJobActive(int jobID, bool b){
-		//contains
-		for(int i = 0; i < possibleJobs.Count; i++){
-			if(possibleJobs[i].possibleJobID == jobID){
-				possibleJobs[i].active = b;
-				return;
-			}
-		}
+		possibleJobs [jobID].active = b;
 	}
 }
 	

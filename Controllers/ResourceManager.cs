@@ -4,45 +4,41 @@ using UnityEngine;
 
 public class ResourceManager : MonoBehaviour {
 
-	public enum ResourceNames{
-		Mud,
-		Wood,
-		Stone,
-		Bricks,
-		Wheat
-	}
+	static ResourceManager _instance;
 
-	Dictionary<ResourceNames, Resource> resources;
-
-	public Dictionary<ResourceNames, Resource> Resources {
+	public static ResourceManager Instance {
 		get {
-			return resources;
+			return _instance;
 		}
 	}
 
-	public void ChangeResourceVal(ResourceNames index, int value){
-		if((int)index >= 0 && (int)index < System.Enum.GetValues (typeof(ResourceNames)).Length){
-			resources [index].Amount = value;
-			UIControllerBuildMode.Instance.EditResourceValue ((int)index, value);
-		}
-	}
+	Resource[] resources;
+	public Resource[] VillageResources { get;}
 
 	/////
 
 	void Start () {
-		this.resources = new Dictionary<ResourceNames, Resource> ();
+		if (_instance != null) {
+			Debug.LogError ("There should not be more than one resource manager");
+		}
 
-		System.Array names = System.Enum.GetValues (typeof(ResourceNames));
-		Debug.Log (names.Length);
-		for(int i = 0; i < names.Length; i++) {
-			this.resources.Add ((ResourceNames) i, new Resource ());
-			ChangeResourceVal ((ResourceNames) i, 0);
+		_instance = this;
+
+		Resource.ResourceType[] resourceTypes = (Resource.ResourceType[]) System.Enum.GetValues (typeof(Resource.ResourceType));
+
+		resources = new Resource[resourceTypes.Length];
+			
+		for(int i = 0; i < resourceTypes.Length; i++) {
+			resources [i] = new Resource (resourceTypes [i]);
+			ChangeVillageResourceVal (i, 0);
 		}
 
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		
+
+	public void ChangeVillageResourceVal(int index, int value){
+		if((int)index >= 0 && (int)index < resources.Length){
+			resources [index].Amount = value;
+			UIControllerBuildMode.Instance.EditResourceValue ((int)index, value);
+		}
 	}
 }

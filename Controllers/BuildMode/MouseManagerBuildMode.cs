@@ -34,7 +34,7 @@ public class MouseManagerBuildMode : MonoBehaviour {
 
 		bm = BuildingManager.Instance;
 
-		DefautCursor ();
+		DefaultCursor ();
 
 		startMousePos = Input.mousePosition;
 
@@ -79,15 +79,16 @@ public class MouseManagerBuildMode : MonoBehaviour {
 		//Right click
 		if (Input.GetMouseButtonDown (1)) {
 			Tile t = MapController.Instance.GetTileAtWorldPos(new Vector3((int)mousePos.x, (int)mousePos.y));
-            
-			if (t.OccupyingVillager != null) {
-				UIControllerBuildMode.Instance.OpenVillagerPanel (t.OccupyingVillager);
-			} else if(t.Installed != null && t.Installed.PossibleJobs != null){
+
+			if((t.Installed != null && t.Installed.PossibleJobs != null) || (t.Loose != null && t.Loose.PossibleJobs != null)){
 	            //display jobs
 				UIController.Instance.DisplayJobPanel(t);
-	        } else {
-				UIControllerBuildMode.Instance.CloseVillagerPanel (); 
-		    }
+	        } 
+			UIControllerBuildMode.Instance.CloseVillagerPanel (); 
+
+			if (t.OccupyingVillagers.Count > 0) {
+				UIControllerBuildMode.Instance.OpenVillagerPanel (t.OccupyingVillagers[0]);
+			} 
 	   }
     }
     
@@ -162,11 +163,11 @@ public class MouseManagerBuildMode : MonoBehaviour {
 		}
 	}
 
-	public void SetCursor(InstalledObject obj){
+	public void SetCursor(InstalledObjectInfo obj, SpriteHolder objSpr){
 		Destroy (cursor);
 
 		if (obj == null) {
-			DefautCursor ();
+			DefaultCursor ();
 		} else {
 			cursor = new GameObject();
 			cursor.name = "CursorCustom";
@@ -176,14 +177,16 @@ public class MouseManagerBuildMode : MonoBehaviour {
 				g.transform.SetParent(cursor.transform);
 				g.transform.position = new Vector3 (obj.RelativeTiles [i] [0], obj.RelativeTiles [i] [1]);
 				SpriteRenderer sr = g.AddComponent<SpriteRenderer> ();
-				sr.sprite = InstalledObjectHolder.Sprites [obj.ID].Sprites [i];
+				sr.sprite = objSpr.Sprites [i];
 				sr.color = new Color (sr.color.r, sr.color.g, sr.color.b, sr.color.a * 0.5f);
 			}
 			cursorHeight = obj.Height;
 		}
 	}
 
-	public void DefautCursor(){
+	public void DefaultCursor(){
+		Destroy (cursor);
+
 		cursor = Instantiate (cursorPrefab, Vector3.zero, Quaternion.identity);
 		cursor.name = "CursorDefault";
 
