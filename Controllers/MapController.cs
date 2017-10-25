@@ -212,8 +212,9 @@ public class MapController : MonoBehaviour {
 
 			installedObjects.Add (obj.Tiles[i], obj_go);
 			obj.Tiles[i].Installed = obj;
+
 		}
-			
+						
 		if (obj.SpawnAdd != null) {
 			foreach (GameObject g in obj.SpawnAdd.Additions) {
 				Instantiate (g, installedObjects[baseTile].transform);

@@ -66,7 +66,12 @@ public static class JobList  {
 
 		jobList.Add (New);
 		jobList [(int)Jobs.StandardInstallEnd] += MakeNewGraphicalObject;
-
+		jobList [(int)Jobs.StandardInstallEnd] += (Tile t, Villager v) => {
+			foreach(Tile u in t.GetNeighbours()){
+			RoomDetection.RoomDetect (u, MapController.Instance.Map); 
+			}
+		};
+			
 		jobList.Add (New);
 		jobList [(int)Jobs.Lock] += MoveVillagersOutOfWay;//FIXME
 		jobList [(int)Jobs.Lock] += ToggleMoveThrough;

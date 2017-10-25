@@ -67,7 +67,6 @@ public class JobController : MonoBehaviour {
 	public void CancelJob(Tile t){
 		Job j;
 		currentJobs.TryGetValue (t, out j);
-		Debug.Log (t.GetPosition () + "  Remove Job");
 
 		if (j != null) {
 

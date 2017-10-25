@@ -141,11 +141,6 @@ public class InstalledObject{
 				this.tiles.Add(MapController.Instance.GetTileAtWorldPos(baseTile.X + i, baseTile.Y + j));
 			}
 		}
-
-		Debug.Log (tiles.Count);
-		foreach (Tile t in tiles) {
-			Debug.Log (t.GetPosition ());
-		}
 	}
 
 //	public InstalledObject (int ID, string name, Func<Tile, bool> validation, 

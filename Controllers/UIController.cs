@@ -94,19 +94,7 @@ public class UIController : MonoBehaviour {
 		Tile t = MapController.Instance.GetTileAtWorldPos (Camera.main.ScreenToWorldPoint(Input.mousePosition));
 
 		if (t != null) {
-			tileInfo.text = "Planned: ";
-				if(t.Planned != null){
-					tileInfo.text += t.Planned.Name;
-				} else {
-					tileInfo.text += "Null";
-				}
-			tileInfo.text += "\nInstalled: ";
-
-			if(t.Installed != null){
-				tileInfo.text += t.Installed.Name;
-			} else {
-				tileInfo.text += "Null";
-			}
+			tileInfo.text = t.inside.ToString ();
 		}
 	}
 }

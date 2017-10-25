@@ -14,6 +14,7 @@ public class Tile : INode, IJobPassable{
 
 	InstalledObject planned;
 	InstalledObject installed;
+	public bool inside = false;
 
 	List<Villager> occupyingVillagers;
 

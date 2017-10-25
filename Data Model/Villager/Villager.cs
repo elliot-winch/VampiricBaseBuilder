@@ -245,7 +245,6 @@ public class Villager : IJobPassable {
 	}
 
 	public void CancelJob(Job j){
-		Debug.Log ("Cancelling job");
 		if(j.Equals(CurrentJob)){
 			this.CurrentJob = null;
 			this.adjacentJobTile = null;
